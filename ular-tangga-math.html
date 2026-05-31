@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ular Tangga Matematika - Kelas 2 & 3 SD</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #4FC3F7; --sun: #FFD600; --grass: #66BB6A;
+    --tomato: #EF5350; --grape: #AB47BC; --orange: #FFA726;
+    --pink: #EC407A; --teal: #26C6DA; --cream: #FFF8E1;
+    --dark: #1A237E; --card: #ffffffee; --shadow: 0 8px 32px #0002;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 50%, #fce4ec 100%);
+    min-height: 100vh; overflow-x: hidden;
+  }
+  header { text-align: center; padding: 18px 12px 8px; }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    color: var(--dark); text-shadow: 3px 3px 0 var(--sun); letter-spacing: 1px;
+  }
+  header p { color: #5c6bc0; font-weight: 700; font-size: .95rem; margin-top: 2px; }
+
+  .app { display: flex; flex-wrap: wrap; gap: 16px; padding: 10px 16px 20px; justify-content: center; }
+
+  /* BOARD */
+  .board-wrap { position: relative; flex-shrink: 0; }
+  #board-container {
+    position: relative;
+    width: min(600px, 96vw);
+    height: min(600px, 96vw);
+  }
+  #board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    background: var(--dark);
+    border-radius: 16px;
+    padding: 5px;
+    box-shadow: 0 12px 40px #0003;
+    width: 100%; height: 100%;
+    position: relative; z-index: 1;
+  }
+  .cell {
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    padding-bottom: 2px;
+    font-family: 'Fredoka One', cursive;
+    color: #fff;
+    position: relative;
+    min-height: 0; overflow: hidden;
+  }
+  .cell.c0  { background: #5c6bc0; } .cell.c1  { background: #ab47bc; }
+  .cell.c2  { background: #26c6da; } .cell.c3  { background: #66bb6a; }
+  .cell.c4  { background: #ffa726; } .cell.c5  { background: #ef5350; }
+  .cell.c6  { background: #42a5f5; } .cell.c7  { background: #ec407a; }
+  .cell.c8  { background: #26a69a; } .cell.c9  { background: #8d6e63; }
+  .cell .num {
+    background: #0006; border-radius: 99px;
+    padding: 1px 4px; font-size: clamp(.45rem,1.1vw,.75rem); line-height: 1.3; z-index:1;
+  }
+
+  /* SVG overlay for snakes & ladders */
+  #svg-overlay {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* pieces layer */
+  #pieces-layer {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .piece {
+    position: absolute;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem;
+    box-shadow: 0 2px 8px #0006;
+    transition: top .5s cubic-bezier(.4,2,.6,1), left .5s cubic-bezier(.4,2,.6,1);
+    z-index: 10;
+  }
+
+  /* SIDE */
+  .side { display: flex; flex-direction: column; gap: 12px; width: min(340px, 96vw); }
+  .card { background: var(--card); border-radius: 18px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .card h2 { font-family: 'Fredoka One', cursive; font-size: 1.15rem; color: var(--dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+  .groups-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .group-item {
+    border-radius: 12px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: .88rem; color: #fff;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 3px 10px #0002;
+  }
+  .group-item.active-turn { transform: scale(1.05); box-shadow: 0 6px 20px #0004; outline: 3px solid var(--sun); }
+  .group-item .avatar { font-size: 1.4rem; }
+  .group-item .info { flex:1; }
+  .group-item .gname { font-size: .78rem; opacity: .9; }
+  .group-item .gpos  { font-size: 1.1rem; }
+
+  #dice-area { text-align: center; }
+  #dice {
+    width: 72px; height: 72px; background: #fff;
+    border-radius: 14px; border: 4px solid var(--dark);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2.8rem; margin: 8px auto;
+    box-shadow: 4px 4px 0 var(--dark);
+    transition: transform .15s; cursor: pointer; user-select: none;
+  }
+  #dice:hover { transform: rotate(-5deg) scale(1.08); }
+  #dice.rolling { animation: roll .5s ease; }
+  @keyframes roll {
+    0%{transform:rotate(0)scale(1)} 25%{transform:rotate(-20deg)scale(1.2)}
+    50%{transform:rotate(15deg)scale(.9)} 75%{transform:rotate(-10deg)scale(1.1)}
+    100%{transform:rotate(0)scale(1)}
+  }
+  #roll-btn {
+    display: block; width: 100%; padding: 12px;
+    background: linear-gradient(135deg, var(--grass), #2e7d32);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+    cursor: pointer; box-shadow: 0 4px 0 #1b5e20;
+    transition: transform .1s, box-shadow .1s; margin-top: 4px;
+  }
+  #roll-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 #1b5e20; }
+  #roll-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #1b5e20; }
+  #roll-btn:disabled { opacity: .55; cursor: not-allowed; }
+  #turn-label { font-weight: 800; font-size: .95rem; color: #5c6bc0; text-align: center; margin-top: 6px; }
+
+  /* modal */
+  #modal-bg { display:none; position:fixed; inset:0; background:#0008; z-index:100; align-items:center; justify-content:center; }
+  #modal-bg.show { display:flex; }
+  #modal {
+    background: var(--cream); border-radius: 24px;
+    padding: 28px 28px 22px; max-width: 420px; width: 92%;
+    box-shadow: 0 20px 60px #0005;
+    animation: popIn .25s cubic-bezier(.4,2,.4,1);
+  }
+  @keyframes popIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+  #modal .q-header { font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--dark); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  #modal .q-text {
+    font-size:1.6rem; font-weight:800; color:var(--dark);
+    text-align:center; padding:16px; background:#fff;
+    border-radius:14px; margin:12px 0; box-shadow:inset 0 2px 8px #0001;
+    min-height:60px; display:flex; align-items:center; justify-content:center;
+  }
+  #answer-input {
+    width:100%; padding:12px 16px; border:3px solid #c5cae9;
+    border-radius:12px; font-size:1.3rem; font-weight:700;
+    text-align:center; outline:none; transition:border-color .2s;
+    font-family:'Nunito',sans-serif;
+  }
+  #answer-input:focus { border-color: var(--sky); }
+  .modal-btns { display:flex; gap:10px; margin-top:12px; }
+  .modal-btns button {
+    flex:1; padding:12px; border:none; border-radius:12px;
+    font-family:'Fredoka One',cursive; font-size:1rem; cursor:pointer; transition:transform .1s;
+  }
+  .modal-btns button:hover { transform:scale(1.04); }
+  #submit-btn { background:var(--grass); color:#fff; box-shadow:0 4px 0 #2e7d32; }
+  #skip-btn   { background:#e0e0e0; color:#555; box-shadow:0 4px 0 #bbb; }
+  #feedback { text-align:center; font-weight:800; font-size:1.1rem; padding:10px; border-radius:10px; margin-top:10px; display:none; }
+  #feedback.correct { background:#c8e6c9; color:#1b5e20; display:block; }
+  #feedback.wrong   { background:#ffcdd2; color:#b71c1c; display:block; }
+
+  .score-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .score-table th { padding:6px 8px; background:var(--dark); color:#fff; text-align:left; }
+  .score-table td { padding:6px 8px; border-bottom:1px solid #e3e3e3; }
+  .score-table tr:last-child td { border-bottom:none; }
+
+  .legend { display:flex; gap:12px; font-size:.8rem; font-weight:700; flex-wrap:wrap; }
+  .legend span { display:flex; align-items:center; gap:4px; }
+
+  #winner-banner { display:none; position:fixed; inset:0; background:#000a; z-index:200; align-items:center; justify-content:center; flex-direction:column; }
+  #winner-banner.show { display:flex; }
+  #winner-banner .trophy { font-size:6rem; animation:bounce 1s infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-20px)} }
+  #winner-banner h2 { font-family:'Fredoka One',cursive; font-size:2.5rem; color:var(--sun); text-shadow:3px 3px 0 #000; margin:12px 0 6px; text-align:center; }
+  #winner-banner p { color:#fff; font-weight:700; font-size:1.1rem; }
+  #restart-btn { margin-top:20px; padding:14px 36px; background:var(--sun); color:var(--dark); border:none; border-radius:16px; font-family:'Fredoka One',cursive; font-size:1.2rem; cursor:pointer; box-shadow:0 6px 0 #b8a000; transition:transform .1s; }
+  #restart-btn:hover { transform:translateY(-3px); }
+
+  .confetti-piece { position:fixed; width:10px; height:14px; border-radius:2px; opacity:0; animation:confettiFall 3s ease-in forwards; z-index:210; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px)rotate(0);opacity:1} 100%{transform:translateY(110vh)rotate(720deg);opacity:0} }
+
+  @media(max-width:640px) { .app{padding:6px 8px 16px;gap:10px} .side{width:96vw} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎲 Ular Tangga Matematika 🎲</h1>
+  <p>Materi Kelas 2 &amp; 3 SD &nbsp;|&nbsp; 6 Kelompok</p>
+</header>
+
+<div class="app">
+  <div class="board-wrap">
+    <div id="board-container">
+      <div id="board"></div>
+      <svg id="svg-overlay" viewBox="0 0 590 590" preserveAspectRatio="none"></svg>
+      <div id="pieces-layer"></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>👥 Kelompok</h2>
+      <div class="groups-grid" id="groups-grid"></div>
+    </div>
+    <div class="card" id="dice-area">
+      <h2>🎲 Giliran Bermain</h2>
+      <div id="dice">⚀</div>
+      <div id="turn-label">Giliran Kelompok 1</div>
+      <button id="roll-btn" onclick="rollDice()">🎲 Lempar Dadu!</button>
+    </div>
+    <div class="card">
+      <h2>📊 Skor</h2>
+      <table class="score-table">
+        <thead><tr><th>Kelompok</th><th>Kotak</th><th>✅</th><th>❌</th></tr></thead>
+        <tbody id="score-body"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>📖 Keterangan</h2>
+      <div class="legend">
+        <span>🟡 Tangga = naik</span>
+        <span>🔴 Ular = turun</span>
+        <span>✅ Benar = lanjut</span>
+        <span>❌ Salah = turun/diam</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Soal -->
+<div id="modal-bg">
+  <div id="modal">
+    <div class="q-header">
+      <span id="q-group-badge" style="font-size:1.5rem"></span>
+      <span id="q-group-name"></span>
+      <span style="margin-left:auto;font-size:.85rem;color:#888" id="q-category"></span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <input id="answer-input" type="number" placeholder="Jawaban kamu..." inputmode="numeric" onkeydown="if(event.key==='Enter')submitAnswer()">
+    <div id="feedback"></div>
+    <div class="modal-btns">
+      <button id="submit-btn" onclick="submitAnswer()">✅ Jawab</button>
+      <button id="skip-btn"   onclick="skipQuestion()">⏭ Lewati</button>
+    </div>
+  </div>
+</div>
+
+<!-- Winner -->
+<div id="winner-banner">
+  <div class="trophy">🏆</div>
+  <h2 id="winner-text">Selamat!</h2>
+  <p id="winner-sub"></p>
+  <button id="restart-btn" onclick="restartGame()">🔄 Main Lagi</button>
+</div>
+
+<script>
+// ═══ DATA ═══
+const GROUP_DATA = [
+  { name:'Kelompok 1', emoji:'🦁', color:'#ef5350' },
+  { name:'Kelompok 2', emoji:'🐬', color:'#42a5f5' },
+  { name:'Kelompok 3', emoji:'🦊', color:'#ffa726' },
+  { name:'Kelompok 4', emoji:'🌸', color:'#ec407a' },
+  { name:'Kelompok 5', emoji:'🐢', color:'#66bb6a' },
+  { name:'Kelompok 6', emoji:'⭐', color:'#ab47bc' },
+];
+
+// Ladders: from → to (bottom → top)
+const LADDERS = [
+  { from:4,  to:14 },
+  { from:9,  to:31 },
+  { from:20, to:38 },
+  { from:28, to:84 },
+  { from:40, to:59 },
+  { from:51, to:67 },
+  { from:63, to:81 },
+  { from:71, to:91 },
+];
+
+// Snakes: from(head) → to(tail)
+const SNAKES = [
+  { from:17, to:7  },
+  { from:54, to:34 },
+  { from:62, to:19 },
+  { from:64, to:60 },
+  { from:87, to:24 },
+  { from:93, to:73 },
+  { from:95, to:75 },
+  { from:99, to:78 },
+];
+
+// 🟦 KELAS 2 = soal sederhana | 🟩 KELAS 3 = soal sedikit lebih tinggi
+const QUESTION_BANK = [
+  // ── Penjumlahan Kelas 2 (2 angka, tanpa menyimpan) ──
+  { q:'23 + 14 = ?',  a:37,  cat:'➕ Penjumlahan' },
+  { q:'31 + 25 = ?',  a:56,  cat:'➕ Penjumlahan' },
+  { q:'42 + 17 = ?',  a:59,  cat:'➕ Penjumlahan' },
+  { q:'50 + 30 = ?',  a:80,  cat:'➕ Penjumlahan' },
+  { q:'64 + 15 = ?',  a:79,  cat:'➕ Penjumlahan' },
+  { q:'13 + 26 = ?',  a:39,  cat:'➕ Penjumlahan' },
+
+  // ── Penjumlahan Kelas 3 (3 angka sederhana) ──
+  { q:'120 + 50 = ?', a:170, cat:'➕ Penjumlahan' },
+  { q:'200 + 45 = ?', a:245, cat:'➕ Penjumlahan' },
+  { q:'130 + 60 = ?', a:190, cat:'➕ Penjumlahan' },
+  { q:'145 + 30 = ?', a:175, cat:'➕ Penjumlahan' },
+
+  // ── Pengurangan Kelas 2 (2 angka, tanpa meminjam) ──
+  { q:'57 - 23 = ?',  a:34,  cat:'➖ Pengurangan' },
+  { q:'89 - 45 = ?',  a:44,  cat:'➖ Pengurangan' },
+  { q:'76 - 34 = ?',  a:42,  cat:'➖ Pengurangan' },
+  { q:'60 - 20 = ?',  a:40,  cat:'➖ Pengurangan' },
+  { q:'95 - 41 = ?',  a:54,  cat:'➖ Pengurangan' },
+
+  // ── Pengurangan Kelas 3 (3 angka sederhana) ──
+  { q:'180 - 50 = ?', a:130, cat:'➖ Pengurangan' },
+  { q:'250 - 30 = ?', a:220, cat:'➖ Pengurangan' },
+  { q:'175 - 25 = ?', a:150, cat:'➖ Pengurangan' },
+  { q:'200 - 70 = ?', a:130, cat:'➖ Pengurangan' },
+
+  // ── Perkalian Kelas 2 (×1 s/d ×5) ──
+  { q:'2 × 4 = ?',    a:8,   cat:'✖️ Perkalian' },
+  { q:'3 × 3 = ?',    a:9,   cat:'✖️ Perkalian' },
+  { q:'5 × 2 = ?',    a:10,  cat:'✖️ Perkalian' },
+  { q:'4 × 4 = ?',    a:16,  cat:'✖️ Perkalian' },
+  { q:'3 × 5 = ?',    a:15,  cat:'✖️ Perkalian' },
+  { q:'2 × 6 = ?',    a:12,  cat:'✖️ Perkalian' },
+
+  // ── Perkalian Kelas 3 (×6 s/d ×9) ──
+  { q:'6 × 3 = ?',    a:18,  cat:'✖️ Perkalian' },
+  { q:'7 × 4 = ?',    a:28,  cat:'✖️ Perkalian' },
+  { q:'8 × 3 = ?',    a:24,  cat:'✖️ Perkalian' },
+  { q:'9 × 2 = ?',    a:18,  cat:'✖️ Perkalian' },
+  { q:'6 × 5 = ?',    a:30,  cat:'✖️ Perkalian' },
+
+  // ── Pembagian Kelas 2 (hasil ≤10, pembagi kecil) ──
+  { q:'10 ÷ 2 = ?',   a:5,   cat:'➗ Pembagian' },
+  { q:'12 ÷ 3 = ?',   a:4,   cat:'➗ Pembagian' },
+  { q:'15 ÷ 5 = ?',   a:3,   cat:'➗ Pembagian' },
+  { q:'8 ÷ 2 = ?',    a:4,   cat:'➗ Pembagian' },
+  { q:'20 ÷ 4 = ?',   a:5,   cat:'➗ Pembagian' },
+
+  // ── Pembagian Kelas 3 (pembagi 6-9) ──
+  { q:'18 ÷ 3 = ?',   a:6,   cat:'➗ Pembagian' },
+  { q:'24 ÷ 4 = ?',   a:6,   cat:'➗ Pembagian' },
+  { q:'30 ÷ 5 = ?',   a:6,   cat:'➗ Pembagian' },
+  { q:'28 ÷ 7 = ?',   a:4,   cat:'➗ Pembagian' },
+  { q:'36 ÷ 6 = ?',   a:6,   cat:'➗ Pembagian' },
+
+  // ── Nilai Tempat Kelas 2 (puluhan & satuan) ──
+  { q:'Puluhan dari 47 = ?',   a:4,  cat:'🔢 Nilai Tempat' },
+  { q:'Satuan dari 85 = ?',    a:5,  cat:'🔢 Nilai Tempat' },
+  { q:'30 + 6 = ?',            a:36, cat:'🔢 Nilai Tempat' },
+  { q:'Puluhan dari 73 = ?',   a:7,  cat:'🔢 Nilai Tempat' },
+
+  // ── Nilai Tempat Kelas 3 (ratusan) ──
+  { q:'Ratusan dari 352 = ?',  a:3,  cat:'🔢 Nilai Tempat' },
+  { q:'100 + 20 + 5 = ?',      a:125, cat:'🔢 Nilai Tempat' },
+  { q:'200 + 30 + 4 = ?',      a:234, cat:'🔢 Nilai Tempat' },
+  { q:'Ratusan dari 461 = ?',  a:4,  cat:'🔢 Nilai Tempat' },
+
+  // ── Soal Cerita Kelas 2 ──
+  { q:'Ada 5 apel, Budi beli 4 lagi. Jumlah apel = ?',          a:9,  cat:'📖 Soal Cerita' },
+  { q:'Ibu punya 20 kue, dibagikan 5 anak. Tiap anak = ?',      a:4,  cat:'📖 Soal Cerita' },
+  { q:'Ada 18 burung, terbang 6. Sisa burung = ?',              a:12, cat:'📖 Soal Cerita' },
+  { q:'3 keranjang, tiap keranjang 4 jeruk. Total jeruk = ?',   a:12, cat:'📖 Soal Cerita' },
+
+  // ── Soal Cerita Kelas 3 ──
+  { q:'Ani punya 50 stiker, diberikan 15. Sisa stiker = ?',      a:35, cat:'📖 Soal Cerita' },
+  { q:'4 baris × 6 kursi. Jumlah kursi = ?',                    a:24, cat:'📖 Soal Cerita' },
+  { q:'Harga pensil Rp 50, beli 3. Total = ? (Rp)',             a:150, cat:'📖 Soal Cerita' },
+  { q:'Ada 100 buku, dipinjam 35. Sisa buku = ?',               a:65, cat:'📖 Soal Cerita' },
+];
+
+// ═══ STATE ═══
+let groups, currentGroup, pendingLand, usedQIdx, currentQuestion;
+const diceIcons = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+function initState() {
+  groups = GROUP_DATA.map(g => ({ ...g, pos:0, correct:0, wrong:0 }));
+  currentGroup = 0; pendingLand = null;
+  usedQIdx = new Set(); currentQuestion = null;
+}
+
+// ═══ BOARD LAYOUT HELPERS ═══
+// Returns {col, row} in 0-based grid coords (row 0 = top = numbers 91-100)
+function cellCoords(n) {
+  const row0 = 9 - Math.floor((n - 1) / 10); // display row from top (0=top)
+  const rowNum = Math.floor((n - 1) / 10);    // 0=bottom row (1-10)
+  let col;
+  if (rowNum % 2 === 0) { // left→right rows: 1-10, 21-30, ...
+    col = (n - 1) % 10;
+  } else { // right→left rows: 11-20, 31-40, ...
+    col = 9 - ((n - 1) % 10);
+  }
+  return { col, row: row0 };
+}
+
+// SVG viewBox is 590x590 with 5px padding and 2px gaps
+// Each cell: (590 - 10 - 2*9) / 10 = (590-10-18)/10 = 562/10 = 56.2px
+const PAD = 5, GAP = 2, CELLS = 10;
+const CELL_SIZE = (590 - PAD*2 - GAP*(CELLS-1)) / CELLS; // ~56.2
+
+function cellCenter(n) {
+  const { col, row } = cellCoords(n);
+  const x = PAD + col * (CELL_SIZE + GAP) + CELL_SIZE / 2;
+  const y = PAD + row * (CELL_SIZE + GAP) + CELL_SIZE / 2;
+  return { x, y };
+}
+
+// ═══ BUILD BOARD ═══
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let row = 9; row >= 0; row--) {
+    for (let col = 0; col < 10; col++) {
+      const rowNum = row; // 0=bottom(1-10)
+      let n;
+      if (rowNum % 2 === 0) n = rowNum * 10 + col + 1;
+      else                   n = rowNum * 10 + (10 - col);
+      const colorIdx = row % 10;
+      const div = document.createElement('div');
+      div.className = `cell c${colorIdx}`;
+      div.id = `cell-${n}`;
+      div.innerHTML = `<span class="num">${n}</span>`;
+      board.appendChild(div);
+    }
+  }
+}
+
+// ═══ DRAW SVG LADDERS & SNAKES ═══
+function drawSVG() {
+  const svg = document.getElementById('svg-overlay');
+  svg.innerHTML = '';
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+
+  // Ladder colors
+  const ladderColors = ['#FFD600','#FF9800','#4CAF50','#2196F3','#E91E63','#9C27B0','#00BCD4','#FF5722'];
+  // Snake color palettes
+  const snakeBodyColors = [
+    ['#e53935','#ef9a9a'],['#7b1fa2','#ce93d8'],['#1565c0','#90caf9'],
+    ['#2e7d32','#a5d6a7'],['#f57f17','#fff176'],['#ad1457','#f48fb1'],
+    ['#00838f','#80deea'],['#4e342e','#bcaaa4'],
+  ];
+
+  LADDERS.forEach((l, i) => {
+    const bottom = cellCenter(l.from);
+    const top    = cellCenter(l.to);
+    const color  = ladderColors[i % ladderColors.length];
+    const dx = top.x - bottom.x;
+    const dy = top.y - bottom.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const nx = -dy/len * 10; // normal for rungs
+    const ny =  dx/len * 10;
+
+    // Shadow
+    const shadow = document.createElementNS('http://www.w3.org/2000/svg','g');
+    shadow.setAttribute('opacity','0.25');
+
+    // Left rail
+    const lr = document.createElementNS('http://www.w3.org/2000/svg','line');
+    lr.setAttribute('x1', bottom.x - nx + 3); lr.setAttribute('y1', bottom.y - ny + 3);
+    lr.setAttribute('x2', top.x - nx + 3);    lr.setAttribute('y2', top.y - ny + 3);
+    lr.setAttribute('stroke','#000'); lr.setAttribute('stroke-width','8'); lr.setAttribute('stroke-linecap','round');
+    shadow.appendChild(lr);
+    const rr = document.createElementNS('http://www.w3.org/2000/svg','line');
+    rr.setAttribute('x1', bottom.x + nx + 3); rr.setAttribute('y1', bottom.y + ny + 3);
+    rr.setAttribute('x2', top.x + nx + 3);    rr.setAttribute('y2', top.y + ny + 3);
+    rr.setAttribute('stroke','#000'); rr.setAttribute('stroke-width','8'); rr.setAttribute('stroke-linecap','round');
+    shadow.appendChild(rr);
+    svg.appendChild(shadow);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Left rail
+    const lRail = document.createElementNS('http://www.w3.org/2000/svg','line');
+    lRail.setAttribute('x1', bottom.x - nx); lRail.setAttribute('y1', bottom.y - ny);
+    lRail.setAttribute('x2', top.x - nx);    lRail.setAttribute('y2', top.y - ny);
+    lRail.setAttribute('stroke', color); lRail.setAttribute('stroke-width','7');
+    lRail.setAttribute('stroke-linecap','round');
+    g.appendChild(lRail);
+
+    // Right rail
+    const rRail = document.createElementNS('http://www.w3.org/2000/svg','line');
+    rRail.setAttribute('x1', bottom.x + nx); rRail.setAttribute('y1', bottom.y + ny);
+    rRail.setAttribute('x2', top.x + nx);    rRail.setAttribute('y2', top.y + ny);
+    rRail.setAttribute('stroke', color); rRail.setAttribute('stroke-width','7');
+    rRail.setAttribute('stroke-linecap','round');
+    g.appendChild(rRail);
+
+    // Rungs
+    const numRungs = Math.max(3, Math.floor(len / 28));
+    for (let r = 1; r <= numRungs; r++) {
+      const t = r / (numRungs + 1);
+      const rx = bottom.x + t * dx;
+      const ry = bottom.y + t * dy;
+      const rung = document.createElementNS('http://www.w3.org/2000/svg','line');
+      rung.setAttribute('x1', rx - nx); rung.setAttribute('y1', ry - ny);
+      rung.setAttribute('x2', rx + nx); rung.setAttribute('y2', ry + ny);
+      rung.setAttribute('stroke', color); rung.setAttribute('stroke-width','5');
+      rung.setAttribute('stroke-linecap','round');
+      g.appendChild(rung);
+    }
+
+    // End circles
+    [bottom, top].forEach(pt => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y);
+      c.setAttribute('r','9'); c.setAttribute('fill', color);
+      c.setAttribute('stroke','#fff'); c.setAttribute('stroke-width','2');
+      g.appendChild(c);
+    });
+
+    svg.appendChild(g);
+  });
+
+  // ── Draw SNAKES ──
+  SNAKES.forEach((s, i) => {
+    const head = cellCenter(s.from);
+    const tail = cellCenter(s.to);
+    const [bodyColor, lightColor] = snakeBodyColors[i % snakeBodyColors.length];
+
+    const dx = tail.x - head.x;
+    const dy = tail.y - head.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const midX = (head.x + tail.x)/2;
+    const midY = (head.y + tail.y)/2;
+    // Control points for S-curve
+    const perp1x = midX + dy * 0.35;
+    const perp1y = midY - dx * 0.35;
+    const perp2x = midX - dy * 0.35;
+    const perp2y = midY + dx * 0.35;
+
+    const id = `sg${i}`;
+    const gradId = `sg-grad-${i}`;
+
+    // Gradient
+    const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+    grad.setAttribute('id', gradId);
+    grad.setAttribute('gradientUnits','userSpaceOnUse');
+    grad.setAttribute('x1', head.x); grad.setAttribute('y1', head.y);
+    grad.setAttribute('x2', tail.x); grad.setAttribute('y2', tail.y);
+    const stop1 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+    stop1.setAttribute('offset','0%'); stop1.setAttribute('stop-color', bodyColor);
+    const stop2 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+    stop2.setAttribute('offset','50%'); stop2.setAttribute('stop-color', lightColor);
+    const stop3 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+    stop3.setAttribute('offset','100%'); stop3.setAttribute('stop-color', bodyColor);
+    grad.appendChild(stop1); grad.appendChild(stop2); grad.appendChild(stop3);
+    defs.appendChild(grad);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Body shadow
+    const shadowPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = `M ${head.x+3} ${head.y+3} Q ${perp1x+3} ${perp1y+3} ${midX+3} ${midY+3} Q ${perp2x+3} ${perp2y+3} ${tail.x+3} ${tail.y+3}`;
+    shadowPath.setAttribute('d', d);
+    shadowPath.setAttribute('stroke','#0003'); shadowPath.setAttribute('stroke-width','22');
+    shadowPath.setAttribute('fill','none'); shadowPath.setAttribute('stroke-linecap','round');
+    g.appendChild(shadowPath);
+
+    // Body
+    const bodyPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d2 = `M ${head.x} ${head.y} Q ${perp1x} ${perp1y} ${midX} ${midY} Q ${perp2x} ${perp2y} ${tail.x} ${tail.y}`;
+    bodyPath.setAttribute('d', d2);
+    bodyPath.setAttribute('stroke', `url(#${gradId})`); bodyPath.setAttribute('stroke-width','18');
+    bodyPath.setAttribute('fill','none'); bodyPath.setAttribute('stroke-linecap','round');
+    g.appendChild(bodyPath);
+
+    // Scales pattern (dots along body)
+    const numScales = Math.max(4, Math.floor(len/40));
+    for (let k = 1; k < numScales; k++) {
+      const t = k / numScales;
+      // Approximate point along cubic bezier
+      const bx = bezierPoint(head.x, perp1x, perp2x, tail.x, t);
+      const by = bezierPoint(head.y, perp1y, perp2y, tail.y, t);
+      const sc = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      sc.setAttribute('cx', bx); sc.setAttribute('cy', by);
+      sc.setAttribute('rx','5'); sc.setAttribute('ry','3');
+      sc.setAttribute('fill', lightColor); sc.setAttribute('opacity','0.6');
+      g.appendChild(sc);
+    }
+
+    // Head circle (big)
+    const headCircle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    headCircle.setAttribute('cx', head.x); headCircle.setAttribute('cy', head.y);
+    headCircle.setAttribute('r','14'); headCircle.setAttribute('fill', bodyColor);
+    headCircle.setAttribute('stroke','#fff'); headCircle.setAttribute('stroke-width','2.5');
+    g.appendChild(headCircle);
+
+    // Eyes
+    const eyeAngle = Math.atan2(dy, dx) + Math.PI; // pointing toward head direction
+    const eyeOffset = 5;
+    const eyeForward = 7;
+    const ex1 = head.x + Math.cos(eyeAngle + 0.5) * eyeForward - Math.sin(eyeAngle + 0.5) * eyeOffset;
+    const ey1 = head.y + Math.sin(eyeAngle + 0.5) * eyeForward + Math.cos(eyeAngle + 0.5) * eyeOffset;
+    const ex2 = head.x + Math.cos(eyeAngle - 0.5) * eyeForward - Math.sin(eyeAngle - 0.5) * eyeOffset;
+    const ey2 = head.y + Math.sin(eyeAngle - 0.5) * eyeForward + Math.cos(eyeAngle - 0.5) * eyeOffset;
+
+    [{ x:ex1,y:ey1 },{ x:ex2,y:ey2 }].forEach(e => {
+      const ew = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ew.setAttribute('cx', e.x); ew.setAttribute('cy', e.y);
+      ew.setAttribute('r','4'); ew.setAttribute('fill','#fff');
+      g.appendChild(ew);
+      const ep = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ep.setAttribute('cx', e.x); ep.setAttribute('cy', e.y);
+      ep.setAttribute('r','2'); ep.setAttribute('fill','#000');
+      g.appendChild(ep);
+    });
+
+    // Tongue
+    const tongueBase = {
+      x: head.x + Math.cos(eyeAngle) * 14,
+      y: head.y + Math.sin(eyeAngle) * 14
+    };
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg','line');
+    t1.setAttribute('x1', tongueBase.x); t1.setAttribute('y1', tongueBase.y);
+    t1.setAttribute('x2', tongueBase.x + Math.cos(eyeAngle + 0.3)*10);
+    t1.setAttribute('y2', tongueBase.y + Math.sin(eyeAngle + 0.3)*10);
+    t1.setAttribute('stroke','#ff1744'); t1.setAttribute('stroke-width','2.5'); t1.setAttribute('stroke-linecap','round');
+    g.appendChild(t1);
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg','line');
+    t2.setAttribute('x1', tongueBase.x); t2.setAttribute('y1', tongueBase.y);
+    t2.setAttribute('x2', tongueBase.x + Math.cos(eyeAngle - 0.3)*10);
+    t2.setAttribute('y2', tongueBase.y + Math.sin(eyeAngle - 0.3)*10);
+    t2.setAttribute('stroke','#ff1744'); t2.setAttribute('stroke-width','2.5'); t2.setAttribute('stroke-linecap','round');
+    g.appendChild(t2);
+
+    // Tail tip
+    const tailTip = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    tailTip.setAttribute('cx', tail.x); tailTip.setAttribute('cy', tail.y);
+    tailTip.setAttribute('r','5'); tailTip.setAttribute('fill', lightColor);
+    g.appendChild(tailTip);
+
+    svg.appendChild(g);
+  });
+
+  svg.insertBefore(defs, svg.firstChild);
+}
+
+// Quadratic bezier point approximation (using 2 control points as cubic)
+function bezierPoint(p0, p1, p2, p3, t) {
+  return (1-t)**3*p0 + 3*(1-t)**2*t*p1 + 3*(1-t)*t**2*p2 + t**3*p3;
+}
+
+// ═══ PIECES ═══
+function getCellCenterPx(cellNum) {
+  const cell = document.getElementById(`cell-${cellNum}`);
+  const layer = document.getElementById('pieces-layer');
+  if (!cell || !layer) return { x:0, y:0 };
+  const cr = cell.getBoundingClientRect();
+  const lr = layer.getBoundingClientRect();
+  return { x: cr.left - lr.left + cr.width/2, y: cr.top - lr.top + cr.height/2 };
+}
+
+function renderPieces() {
+  const layer = document.getElementById('pieces-layer');
+  layer.innerHTML = '';
+  groups.forEach((g, i) => {
+    if (g.pos === 0) return;
+    const col = i % 3, row = Math.floor(i / 3);
+    const { x, y } = getCellCenterPx(g.pos);
+    const div = document.createElement('div');
+    div.className = 'piece';
+    div.id = `piece-${i}`;
+    div.style.background = g.color;
+    div.style.left = (x - 12 + (col - 1) * 10) + 'px';
+    div.style.top  = (y - 12 + (row - 0.5) * 10) + 'px';
+    div.textContent = g.emoji;
+    layer.appendChild(div);
+  });
+}
+
+// ═══ UI ═══
+const ladderMap = {}; LADDERS.forEach(l => ladderMap[l.from] = l.to);
+const snakeMap  = {}; SNAKES.forEach(s => snakeMap[s.from] = s.to);
+
+function renderGroups() {
+  const c = document.getElementById('groups-grid'); c.innerHTML = '';
+  groups.forEach((g, i) => {
+    const div = document.createElement('div');
+    div.className = 'group-item' + (i === currentGroup ? ' active-turn' : '');
+    div.style.background = g.color;
+    div.innerHTML = `<span class="avatar">${g.emoji}</span><div class="info"><div class="gname">${g.name}</div><div class="gpos">Kotak ${g.pos}</div></div>`;
+    c.appendChild(div);
+  });
+}
+function renderScore() {
+  const tb = document.getElementById('score-body'); tb.innerHTML = '';
+  groups.forEach(g => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${g.emoji} ${g.name}</td><td><b>${g.pos}</b></td><td style="color:#2e7d32;font-weight:800">${g.correct}</td><td style="color:#b71c1c;font-weight:800">${g.wrong}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderAll() {
+  renderGroups(); renderScore(); renderPieces();
+  document.getElementById('turn-label').textContent = `Giliran ${groups[currentGroup].name} ${groups[currentGroup].emoji}`;
+}
+
+// ═══ GAME ═══
+function rollDice() {
+  document.getElementById('roll-btn').disabled = true;
+  const dice = document.getElementById('dice');
+  dice.classList.add('rolling');
+  let cnt = 0;
+  const spin = setInterval(() => {
+    dice.textContent = diceIcons[Math.floor(Math.random()*6)];
+    if (++cnt >= 10) {
+      clearInterval(spin); dice.classList.remove('rolling');
+      const val = Math.floor(Math.random()*6)+1;
+      dice.textContent = diceIcons[val-1];
+      movePiece(val);
+    }
+  }, 60);
+}
+
+function movePiece(steps) {
+  const g = groups[currentGroup];
+  let np = g.pos + steps;
+  if (np > 100) np = 100 - (np - 100);
+  pendingLand = np;
+  animateMove(g.pos, np, () => {
+    g.pos = np; renderAll();
+    if (np === 100) { showWinner(currentGroup); return; }
+    showQuestion(np);
+  });
+}
+
+function animateMove(from, to, cb) {
+  const g = groups[currentGroup];
+  let pos = from;
+  const step = from < to ? 1 : -1;
+  function tick() {
+    pos += step; g.pos = pos; renderPieces();
+    pos !== to ? setTimeout(tick, 110) : cb();
+  }
+  tick();
+}
+
+function getRandomQuestion() {
+  const avail = QUESTION_BANK.map((_,i)=>i).filter(i=>!usedQIdx.has(i));
+  if (!avail.length) usedQIdx.clear();
+  const idx = avail.length ? avail[Math.floor(Math.random()*avail.length)] : Math.floor(Math.random()*QUESTION_BANK.length);
+  usedQIdx.add(idx);
+  return { ...QUESTION_BANK[idx], idx };
+}
+
+function showQuestion(pos) {
+  currentQuestion = getRandomQuestion();
+  const g = groups[currentGroup];
+  document.getElementById('q-group-badge').textContent = g.emoji;
+  document.getElementById('q-group-name').textContent  = g.name;
+  document.getElementById('q-category').textContent    = currentQuestion.cat;
+  document.getElementById('q-text').textContent        = currentQuestion.q;
+  document.getElementById('answer-input').value        = '';
+  document.getElementById('feedback').className        = '';
+  document.getElementById('feedback').textContent      = '';
+  document.getElementById('submit-btn').disabled       = false;
+  document.getElementById('skip-btn').disabled         = false;
+  document.getElementById('modal-bg').classList.add('show');
+  setTimeout(() => document.getElementById('answer-input').focus(), 200);
+}
+
+function submitAnswer() {
+  const val = parseInt(document.getElementById('answer-input').value, 10);
+  if (isNaN(val)) { document.getElementById('answer-input').focus(); return; }
+  const correct = val === currentQuestion.a;
+  const fb = document.getElementById('feedback');
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('skip-btn').disabled   = true;
+  if (correct) {
+    fb.textContent = `✅ Benar! Jawaban: ${currentQuestion.a}`; fb.className = 'correct';
+    groups[currentGroup].correct++;
+    setTimeout(() => closeModal(applyLS(pendingLand, true)), 1200);
+  } else {
+    fb.textContent = `❌ Salah! Jawaban: ${currentQuestion.a}`; fb.className = 'wrong';
+    groups[currentGroup].wrong++;
+    setTimeout(() => closeModal(applyLS(pendingLand, false)), 1400);
+  }
+}
+
+function applyLS(pos, correct) {
+  if (correct && ladderMap[pos]) return ladderMap[pos];
+  if (!correct && snakeMap[pos]) return snakeMap[pos];
+  if (!correct && ladderMap[pos]) return pos;
+  return pos;
+}
+
+function skipQuestion() {
+  groups[currentGroup].wrong++;
+  const fb = document.getElementById('feedback');
+  fb.textContent = `⏭ Dilewati! Jawaban: ${currentQuestion.a}`; fb.className = 'wrong';
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('skip-btn').disabled   = true;
+  setTimeout(() => closeModal(applyLS(pendingLand, false)), 1200);
+}
+
+function closeModal(finalPos) {
+  document.getElementById('modal-bg').classList.remove('show');
+  const g = groups[currentGroup];
+  const prev = g.pos;
+  if (finalPos !== prev) {
+    const msg = finalPos > prev ? '🪜 Naik tangga!' : '🐍 Turun ular!';
+    showFloat(msg, finalPos > prev ? '#66bb6a' : '#ef5350');
+    animateMove(prev, finalPos, () => {
+      g.pos = finalPos; renderAll();
+      if (finalPos === 100) { showWinner(currentGroup); return; }
+      nextTurn();
+    });
+  } else { nextTurn(); }
+}
+
+function showFloat(msg, color) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:${color};color:#fff;padding:14px 28px;border-radius:16px;font-family:'Fredoka One',cursive;font-size:1.5rem;z-index:300;pointer-events:none;animation:fadeUp 1.5s forwards;box-shadow:0 8px 24px #0004;`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  if (!document.getElementById('fadeUpStyle')) {
+    const s = document.createElement('style'); s.id = 'fadeUpStyle';
+    s.textContent = '@keyframes fadeUp{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-120%)}}';
+    document.head.appendChild(s);
+  }
+  setTimeout(() => el.remove(), 1600);
+}
+
+function nextTurn() {
+  currentGroup = (currentGroup + 1) % groups.length;
+  renderAll();
+  document.getElementById('roll-btn').disabled = false;
+}
+
+function showWinner(idx) {
+  const g = groups[idx];
+  document.getElementById('winner-text').textContent = `🎉 ${g.name} Menang! ${g.emoji}`;
+  document.getElementById('winner-sub').textContent  = `Benar: ${g.correct}  |  Salah: ${g.wrong}`;
+  document.getElementById('winner-banner').classList.add('show');
+  spawnConfetti();
+}
+
+function spawnConfetti() {
+  const cols = ['#FFD600','#EF5350','#42A5F5','#66BB6A','#AB47BC','#FFA726'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random()*100+'vw';
+    el.style.background = cols[Math.floor(Math.random()*cols.length)];
+    el.style.animationDelay = Math.random()*2+'s';
+    el.style.animationDuration = (2+Math.random()*2)+'s';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+
+function restartGame() {
+  document.getElementById('winner-banner').classList.remove('show');
+  initState(); renderAll();
+  document.getElementById('roll-btn').disabled = false;
+  document.getElementById('dice').textContent = '⚀';
+}
+
+// ═══ INIT ═══
+initState();
+buildBoard();
+renderAll();
+// Draw SVG after board is painted
+setTimeout(drawSVG, 50);
+window.addEventListener('resize', () => { setTimeout(() => { drawSVG(); renderPieces(); }, 100); });
+</script>
+</body>
+</html>
