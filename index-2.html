@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Ular Tangga Matematika - Kelas 2 & 3 SD</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg1:#f0f4ff; --bg2:#fef6ff; --bg3:#fff8f0;
+  --primary:#5b8dee; --primary-dk:#3a6fd8;
+  --green:#52b788; --green-dk:#2d8a5e;
+  --red:#e07070; --red-dk:#c04a4a;
+  --yellow:#f6c74e; --yellow-dk:#d4a020;
+  --purple:#9b7fe8; --pink:#e887b0;
+  --orange:#f4956a; --teal:#5bbfbf;
+  --text:#3a3a5c; --text-light:#6b6b8a;
+  --card:#ffffffdd; --border:#e2e8f8;
+  --shadow:0 4px 20px #5b8dee18;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(160deg,#e8f0ff 0%,#f5eeff 40%,#fff4e8 100%);
+  overflow-x:hidden;
+  color:var(--text);
+}
+
+/* Floating blobs */
+.bg-deco{position:fixed;pointer-events:none;z-index:0;border-radius:50%;opacity:.15;filter:blur(50px)}
+.bg-deco.d1{width:350px;height:350px;background:#a78bfa;top:-100px;left:-80px;animation:floatDeco 14s ease-in-out infinite alternate}
+.bg-deco.d2{width:300px;height:300px;background:#60a5fa;top:25%;right:-80px;animation:floatDeco 18s ease-in-out infinite alternate-reverse}
+.bg-deco.d3{width:260px;height:260px;background:#fb923c;bottom:8%;left:5%;animation:floatDeco 11s ease-in-out infinite alternate}
+.bg-deco.d4{width:220px;height:220px;background:#34d399;bottom:-50px;right:15%;animation:floatDeco 15s ease-in-out infinite alternate-reverse}
+@keyframes floatDeco{from{transform:translateY(0)scale(1)}to{transform:translateY(-28px)scale(1.08)}}
+
+/* Floating emoji */
+.float-emoji{position:fixed;font-size:1.6rem;pointer-events:none;z-index:0;opacity:.18;animation:floatEmoji linear infinite}
+@keyframes floatEmoji{0%{transform:translateY(105vh)rotate(0)}100%{transform:translateY(-10vh)rotate(360deg)}}
+
+/* HEADER */
+header{text-align:center;padding:20px 12px 8px;position:relative;z-index:2}
+.header-box{
+  display:inline-block;
+  background:linear-gradient(135deg,#fff,#f0f4ff);
+  border-radius:24px;padding:12px 32px 10px;
+  box-shadow:0 4px 0 #c7d8ff,0 8px 24px #5b8dee20;
+  border:2px solid #dce8ff;position:relative;
+}
+.header-box::before{display:none}
+.header-box::after{display:none}
+@keyframes wobble{0%,100%{transform:translateY(-50%) rotate(-15deg)}50%{transform:translateY(-62%) rotate(-5deg)}}
+header h1{font-size:clamp(1.5rem,5vw,2.5rem);color:var(--primary-dk);letter-spacing:.5px;line-height:1.2}
+header p{color:var(--text-light);font-weight:800;font-size:clamp(.82rem,2vw,.98rem);margin-top:4px}
+
+/* LAYOUT */
+.app{display:flex;flex-wrap:wrap;gap:14px;padding:10px 14px 24px;justify-content:center;position:relative;z-index:2}
+
+/* BOARD */
+.board-wrap{position:relative;flex-shrink:0}
+#board-container{
+  position:relative;width:min(580px,96vw);height:min(580px,96vw);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 0 0 3px #dce8ff,0 0 0 6px #c7d8ff,0 12px 40px #5b8dee28;
+}
+#board{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;background:#d8e4f8;padding:4px;width:100%;height:100%;position:relative;z-index:1}
+.cell{border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:2px;color:#fff;position:relative;min-height:0;overflow:hidden;transition:filter .15s}
+.cell:hover{filter:brightness(1.08)}
+.cell.current-turn{outline:3px solid #f6c74e;outline-offset:-3px;filter:brightness(1.15)}
+.cell.c0{background:#8bb8f5}.cell.c1{background:#a594e8}
+.cell.c2{background:#5ec4c4}.cell.c3{background:#72c98a}
+.cell.c4{background:#f4b06a}.cell.c5{background:#e88a8a}
+.cell.c6{background:#73b8e8}.cell.c7{background:#e08ab0}
+.cell.c8{background:#5bc4b8}.cell.c9{background:#b09888}
+.cell .num{background:#0005;border-radius:99px;padding:1px 5px;font-size:clamp(.55rem,1.2vw,.85rem);line-height:1.3;z-index:1;font-weight:900}
+#svg-overlay{position:absolute;top:4px;left:4px;width:calc(100% - 8px);height:calc(100% - 8px);pointer-events:none;z-index:2}
+#pieces-layer{position:absolute;top:4px;left:4px;width:calc(100% - 8px);height:calc(100% - 8px);pointer-events:none;z-index:3}
+.piece{position:absolute;width:26px;height:26px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;box-shadow:0 3px 10px #0005;transition:top .5s cubic-bezier(.4,2,.6,1),left .5s cubic-bezier(.4,2,.6,1);z-index:10}
+
+/* SIDE */
+.side{display:flex;flex-direction:column;gap:12px;width:min(340px,96vw)}
+.card{background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.card h2{font-size:1.12rem;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.card h2 .badge{background:linear-gradient(135deg,#dce8ff,#c7d8ff);color:var(--primary-dk);border-radius:99px;padding:1px 10px;font-size:.75rem;font-weight:800;margin-left:auto;border:1px solid #b8ccf8}
+
+/* groups */
+.groups-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.group-item{border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:8px;font-weight:800;color:#fff;transition:transform .2s,box-shadow .2s;box-shadow:0 3px 0 #0002;cursor:default;user-select:none}
+.group-item.active-turn{transform:scale(1.06);box-shadow:0 4px 0 #0003,0 0 0 3px var(--yellow);animation:pulse 1.2s infinite alternate}
+@keyframes pulse{from{box-shadow:0 4px 0 #0003,0 0 0 3px #f6c74e}to{box-shadow:0 4px 0 #0003,0 0 0 5px #f4956a}}
+.group-item .avatar{font-size:1.8rem;line-height:1}
+.group-item .info{flex:1}
+.group-item .gname{font-size:.8rem;opacity:.9;font-weight:700}
+.group-item .gpos{font-size:1.1rem;font-weight:900}
+
+/* dice */
+#dice-area{text-align:center}
+.dice-wrap{background:linear-gradient(135deg,#eef3ff,#e8e0ff);border-radius:16px;padding:12px;margin-bottom:8px;border:1.5px solid #d0dcf8}
+#dice{width:76px;height:76px;background:#fff;border-radius:16px;border:3px solid #c7d8ff;display:inline-flex;align-items:center;justify-content:center;font-size:3rem;margin:4px auto 6px;box-shadow:3px 3px 0 #c7d8ff,0 6px 18px #5b8dee18;transition:transform .15s;cursor:pointer;user-select:none}
+#dice:hover{transform:rotate(-8deg) scale(1.1)}
+#dice.rolling{animation:roll .42s ease}
+@keyframes roll{0%{transform:rotate(0)scale(1)}25%{transform:rotate(-22deg)scale(1.2)}50%{transform:rotate(18deg)scale(.9)}75%{transform:rotate(-10deg)scale(1.1)}100%{transform:rotate(0)scale(1)}}
+#turn-label{font-weight:800;font-size:.98rem;color:var(--primary-dk);background:#eef3ff;border:1px solid #d0dcf8;border-radius:10px;padding:5px 10px;margin:4px 0 8px;display:inline-block}
+#roll-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--green),var(--green-dk));color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:1.18rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--green-dk);transition:transform .1s,box-shadow .1s}
+#roll-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 var(--green-dk)}
+#roll-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--green-dk)}
+#roll-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* score */
+.score-table{width:100%;border-collapse:separate;border-spacing:0 4px;font-size:.93rem}
+.score-table th{padding:7px 10px;background:linear-gradient(135deg,#eef3ff,#e8e0ff);color:var(--primary-dk);font-size:.88rem;font-weight:800;border-bottom:2px solid #d0dcf8}
+.score-table th:first-child{border-radius:10px 0 0 10px}
+.score-table th:last-child{border-radius:0 10px 10px 0}
+.score-table td{padding:6px 10px;background:#f8f9ff;border-bottom:1.5px solid #eef0fa;font-size:.93rem;font-weight:700;color:var(--text)}
+.score-table td:first-child{border-radius:8px 0 0 8px}
+.score-table td:last-child{border-radius:0 8px 8px 0}
+
+/* legend */
+.legend{display:flex;gap:5px;font-size:.82rem;font-weight:800;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px;background:#eef3ff;border:1px solid #d0dcf8;color:var(--text-light);border-radius:10px;padding:3px 8px}
+
+/* MODAL */
+#modal-bg{display:none;position:fixed;inset:0;background:#3a3a5c88;backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center}
+#modal-bg.show{display:flex}
+#modal{background:linear-gradient(160deg,#fff,#f8f0ff);border-radius:28px;padding:22px 22px 18px;max-width:440px;width:94%;box-shadow:0 20px 60px #5b8dee25,0 0 0 2px #e2d8ff;animation:popIn .3s cubic-bezier(.4,2,.4,1)}
+@keyframes popIn{from{transform:scale(.7)rotate(-3deg);opacity:0}to{transform:scale(1)rotate(0);opacity:1}}
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.q-group-pill{display:flex;align-items:center;gap:6px;border-radius:99px;padding:5px 14px;font-size:1rem;color:#fff;font-weight:800}
+#q-category{background:#eef3ff;color:var(--primary-dk);border-radius:99px;padding:3px 12px;font-size:.82rem;font-weight:800;border:1px solid #d0dcf8}
+.q-text{font-size:2rem;font-weight:900;color:var(--text);text-align:center;padding:18px 12px;background:linear-gradient(135deg,#f0f4ff,#f5eeff);border-radius:18px;margin:8px 0;min-height:80px;display:flex;align-items:center;justify-content:center;line-height:1.3;border:2px solid #dce8ff}
+#answer-input{width:100%;padding:13px;border:3px solid #dce8ff;border-radius:14px;font-size:1.8rem;font-weight:900;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s;font-family:'Nunito',sans-serif;color:var(--text);background:#fff}
+#answer-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px #5b8dee20}
+#answer-input:disabled{background:#f4f6fc;border-color:#e2e8f8;color:#b0b8d0;cursor:not-allowed}
+.modal-btns{display:flex;gap:10px;margin-top:12px}
+.modal-btns button{flex:1;padding:13px;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:1.1rem;cursor:pointer;transition:transform .1s,box-shadow .1s;font-weight:800}
+.modal-btns button:hover{transform:scale(1.03)}
+#submit-btn{background:linear-gradient(135deg,var(--green),var(--green-dk));color:#fff;box-shadow:0 4px 0 var(--green-dk)}
+#skip-btn{background:#f0f4ff;color:var(--text-light);box-shadow:0 4px 0 #c7d8ff;border:1.5px solid #dce8ff}
+#feedback{text-align:center;font-weight:900;font-size:1.15rem;padding:10px;border-radius:14px;margin-top:8px;display:none;font-family:'Nunito',sans-serif;animation:popIn .2s ease}
+#feedback.correct{background:#dcfce7;color:#166534;display:block;border:2px solid #86efac}
+#feedback.wrong{background:#fee2e2;color:#991b1b;display:block;border:2px solid #fca5a5}
+#feedback.warning{background:#fef9c3;color:#854d0e;display:block;border:2px solid #fde047;animation:popIn .2s ease}
+
+/* answerer */
+#answerer-row{margin:8px 0 4px}
+#answerer-label{font-size:.93rem;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
+#answerer-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.answerer-btn{border:2.5px solid transparent;border-radius:12px;padding:6px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;color:#fff;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:5px;box-shadow:0 2px 0 #0002}
+.answerer-btn:hover{transform:scale(1.06)}
+.answerer-btn.selected{border-color:#fff;box-shadow:0 0 0 3px var(--yellow);transform:scale(1.08)}
+.answerer-btn.used{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+
+/* timer */
+#timer-bar-wrap{width:100%;height:10px;background:#e8edf8;border-radius:99px;margin-bottom:8px;overflow:hidden;display:none}
+#timer-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:width .9s linear;width:100%}
+#timer-label{text-align:center;font-weight:800;font-size:.92rem;color:var(--text-light);margin-bottom:4px;display:none}
+
+/* WINNER */
+#winner-banner{display:none;position:fixed;inset:0;background:#3a3a5caa;backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px}
+#winner-banner.show{display:flex}
+.winner-card{background:linear-gradient(145deg,#fff,#f0f4ff);border-radius:28px;padding:36px 32px 28px;max-width:380px;width:95%;box-shadow:0 0 0 3px #dce8ff,0 0 0 6px #c7d8ff,0 24px 60px #0005;animation:popIn .4s cubic-bezier(.4,2,.4,1)}
+.trophy{font-size:6rem;animation:bounce 1s infinite alternate;display:block}
+@keyframes bounce{from{transform:translateY(0)rotate(-5deg)}to{transform:translateY(-18px)rotate(5deg)}}
+#winner-banner h2{font-size:2.2rem;color:var(--primary-dk);margin:10px 0 6px}
+#winner-sub{color:var(--text-light);font-weight:800;font-size:1.1rem;margin-bottom:16px}
+#restart-btn{padding:14px 36px;background:linear-gradient(135deg,var(--primary),var(--primary-dk));color:#fff;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:1.25rem;font-weight:800;cursor:pointer;box-shadow:0 5px 0 var(--primary-dk);transition:transform .1s}
+#restart-btn:hover{transform:translateY(-2px)}
+
+/* confetti */
+.confetti-piece{position:fixed;border-radius:3px;opacity:0;animation:confettiFall 3s ease-in forwards;z-index:210}
+@keyframes confettiFall{0%{transform:translateY(-20px)rotate(0);opacity:1}100%{transform:translateY(110vh)rotate(720deg);opacity:0}}
+
+@keyframes shakeRow{0%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}100%{transform:translateX(0)}}
+@keyframes fadeUp{0%{opacity:1;transform:translate(-50%,-50%)scale(1)}100%{opacity:0;transform:translate(-50%,-150%)scale(1.05)}}
+
+@media(max-width:640px){
+  .app{padding:6px 8px 16px;gap:10px}
+  .side{width:96vw}
+  .header-box::before,.header-box::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Background decoration blobs -->
+<div class="bg-deco d1"></div>
+<div class="bg-deco d2"></div>
+<div class="bg-deco d3"></div>
+<div class="bg-deco d4"></div>
+
+<!-- Floating emoji decorations -->
+<div class="float-emoji" style="left:5%;animation-duration:18s;animation-delay:0s">🎈</div>
+<div class="float-emoji" style="left:20%;animation-duration:22s;animation-delay:-6s">⭐</div>
+<div class="float-emoji" style="left:40%;animation-duration:16s;animation-delay:-3s">🎉</div>
+<div class="float-emoji" style="left:60%;animation-duration:25s;animation-delay:-10s">🌟</div>
+<div class="float-emoji" style="left:75%;animation-duration:20s;animation-delay:-8s">🎊</div>
+<div class="float-emoji" style="left:90%;animation-duration:14s;animation-delay:-2s">✨</div>
+
+<header>
+  <div class="header-box">
+    <h1>🎲 Ular Tangga Matematika 🎲</h1>
+    <p>✏️ Materi Kelas 2 &amp; 3 SD &nbsp;·&nbsp; 6 Kelompok 👥</p>
+  </div>
+</header>
+
+<div class="app">
+  <!-- BOARD -->
+  <div class="board-wrap">
+    <div id="board-container">
+      <div id="board"></div>
+      <svg id="svg-overlay" viewBox="0 0 572 572" preserveAspectRatio="none"></svg>
+      <div id="pieces-layer"></div>
+    </div>
+  </div>
+
+  <!-- SIDE -->
+  <div class="side">
+
+    <!-- Kelompok -->
+    <div class="card">
+      <h2>👥 Kelompok <span class="badge">6 Tim</span></h2>
+      <div class="groups-grid" id="groups-grid"></div>
+    </div>
+
+    <!-- Dadu -->
+    <div class="card" id="dice-area">
+      <h2>🎲 Giliran Bermain</h2>
+      <div class="dice-wrap">
+        <div id="dice">⚀</div>
+        <div id="turn-label">Giliran Kelompok 1</div>
+      </div>
+      <button id="roll-btn" onclick="rollDice()">🎲 Lempar Dadu!</button>
+    </div>
+
+    <!-- Skor -->
+    <div class="card">
+      <h2>📊 Papan Skor</h2>
+      <table class="score-table">
+        <thead><tr><th>Kelompok</th><th>Kotak</th><th>✅</th><th>❌</th></tr></thead>
+        <tbody id="score-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Legend -->
+    <div class="card">
+      <h2>📖 Cara Bermain</h2>
+      <div class="legend">
+        <span>🎲 Lempar dadu → dapat soal</span>
+        <span>✅ Benar → bidak maju</span>
+        <span>❌ Salah → bidak diam</span>
+        <span>⏭ Lewati → soal direbut</span>
+        <span>🔥 Rebutan benar → kamu yang maju</span>
+        <span>🪜 Tangga → naik</span>
+        <span>🐍 Ular → turun</span>
+      </div>
+    </div>
+
+
+    <!-- Suara -->
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px">
+      <span style="font-weight:800;font-size:1rem;color:var(--text)">🔊 Efek Suara</span>
+      <button id="mute-btn" onclick="toggleMute()" style="padding:8px 16px;background:#eef3ff;color:var(--primary-dk);border:1.5px solid #d0dcf8;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer">
+        🔊 Nyala
+      </button>
+    </div>
+    <!-- Reset -->
+    <div class="card" style="text-align:center">
+      <button onclick="confirmReset()" style="width:100%;padding:12px;background:linear-gradient(135deg,#ef5350,#b71c1c);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #7f0000;">🔄 Mulai Ulang Permainan</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirm Reset Modal -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:#3a3a5c88;backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:24px;padding:28px 24px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px #0003;border:2px solid #dce8ff;animation:popIn .25s ease">
+    <div style="font-size:3rem;margin-bottom:8px">🔄</div>
+    <div style="font-size:1.2rem;font-weight:900;color:#3a3a5c;margin-bottom:6px">Mulai Ulang?</div>
+    <div style="font-size:.95rem;color:#6b6b8a;font-weight:700;margin-bottom:20px">Semua skor dan posisi akan direset.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('confirm-modal').style.display='none'"
+        style="flex:1;padding:12px;background:#f0f4ff;color:#6b6b8a;border:1.5px solid #dce8ff;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer">
+        Batal
+      </button>
+      <button onclick="document.getElementById('confirm-modal').style.display='none';restartGame()"
+        style="flex:1;padding:12px;background:linear-gradient(135deg,#e07070,#c04a4a);color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #c04a4a">
+        Ya, Ulang!
+      </button>
+    </div>
+  </div>
+</div>
+<div id="modal-bg">
+  <div id="modal">
+    <div class="q-header">
+      <div class="q-group-pill" id="q-pill">
+        <span id="q-group-badge"></span>
+        <span id="q-group-name"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="q-category"></span>
+        <span id="q-dice-info" style="font-size:.82rem;font-weight:800;background:#e8eaf6;color:#3949ab;border-radius:99px;padding:2px 10px;display:none">🎲 Dadu: <b id="q-dice-val"></b></span>
+      </div>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div id="timer-label">⏱ Sisa waktu: <span id="timer-count">30</span> detik</div>
+    <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+
+    <!-- Selector kelompok yang menjawab -->
+    <div id="answerer-row">
+      <div id="answerer-label">🙋 Siapa yang menjawab?</div>
+      <div id="answerer-btns"></div>
+    </div>
+
+    <div style="position:relative">
+      <input id="answer-input" type="number" placeholder="Tulis jawaban di sini..."
+             inputmode="numeric"
+             onkeydown="if(event.key==='Enter')submitAnswer()">
+      <!-- Overlay: muncul saat rebutan belum pilih kelompok -->
+      <div id="input-overlay"
+           style="display:none;position:absolute;inset:0;border-radius:14px;cursor:not-allowed;z-index:5;background:#0000"
+           onclick="showWarning('⚠️ Pilih kelompok yang menjawab dulu!')">
+      </div>
+    </div>
+    <div id="feedback"></div>
+    <div class="modal-btns">
+      <button id="submit-btn" onclick="submitAnswer()">✅ Jawab!</button>
+      <button id="skip-btn"   onclick="skipQuestion()">⏭ Lewati</button>
+    </div>
+    <!-- Tombol lewati rebutan — hanya muncul saat mode rebutan -->
+    <div id="skip-rebutan-row" style="display:none;margin-top:8px">
+      <button onclick="skipRebutan()" style="width:100%;padding:10px;background:#f0f4ff;color:#6b6b8a;border:1.5px solid #dce8ff;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #c7d8ff">
+        ⏭ Lewati Rebutan — Tidak ada yang bisa menjawab
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Winner -->
+<div id="winner-banner">
+  <div class="winner-card">
+    <span class="trophy">🏆</span>
+    <h2 id="winner-text">Selamat!</h2>
+    <p id="winner-sub"></p>
+    <button id="restart-btn" onclick="restartGame()">🔄 Main Lagi!</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+//  DATA
+// ═══════════════════════════════
+const GROUP_DATA = [
+  { name:'Kelompok 1', emoji:'🦁', color:'#e07070' },
+  { name:'Kelompok 2', emoji:'🐬', color:'#5b8dee' },
+  { name:'Kelompok 3', emoji:'🦊', color:'#f4956a' },
+  { name:'Kelompok 4', emoji:'🌸', color:'#e887b0' },
+  { name:'Kelompok 5', emoji:'🐢', color:'#52b788' },
+  { name:'Kelompok 6', emoji:'⭐', color:'#9b7fe8' },
+];
+
+const LADDERS = [
+  {from:4,to:14},{from:9,to:31},{from:20,to:38},{from:28,to:84},
+  {from:40,to:59},{from:51,to:67},{from:63,to:81},{from:71,to:91},
+];
+const SNAKES = [
+  {from:17,to:7},{from:54,to:34},{from:62,to:19},{from:64,to:60},
+  {from:87,to:24},{from:93,to:73},{from:95,to:75},{from:99,to:78},
+];
+
+const QUESTION_BANK = [
+  {q:'23 + 14 = ?',a:37,cat:'➕ Penjumlahan'},{q:'31 + 25 = ?',a:56,cat:'➕ Penjumlahan'},
+  {q:'42 + 17 = ?',a:59,cat:'➕ Penjumlahan'},{q:'50 + 30 = ?',a:80,cat:'➕ Penjumlahan'},
+  {q:'64 + 15 = ?',a:79,cat:'➕ Penjumlahan'},{q:'13 + 26 = ?',a:39,cat:'➕ Penjumlahan'},
+  {q:'120 + 50 = ?',a:170,cat:'➕ Penjumlahan'},{q:'200 + 45 = ?',a:245,cat:'➕ Penjumlahan'},
+  {q:'130 + 60 = ?',a:190,cat:'➕ Penjumlahan'},{q:'145 + 30 = ?',a:175,cat:'➕ Penjumlahan'},
+  {q:'57 - 23 = ?',a:34,cat:'➖ Pengurangan'},{q:'89 - 45 = ?',a:44,cat:'➖ Pengurangan'},
+  {q:'76 - 34 = ?',a:42,cat:'➖ Pengurangan'},{q:'60 - 20 = ?',a:40,cat:'➖ Pengurangan'},
+  {q:'95 - 41 = ?',a:54,cat:'➖ Pengurangan'},{q:'180 - 50 = ?',a:130,cat:'➖ Pengurangan'},
+  {q:'250 - 30 = ?',a:220,cat:'➖ Pengurangan'},{q:'175 - 25 = ?',a:150,cat:'➖ Pengurangan'},
+  {q:'200 - 70 = ?',a:130,cat:'➖ Pengurangan'},
+  {q:'2 × 4 = ?',a:8,cat:'✖️ Perkalian'},{q:'3 × 3 = ?',a:9,cat:'✖️ Perkalian'},
+  {q:'5 × 2 = ?',a:10,cat:'✖️ Perkalian'},{q:'4 × 4 = ?',a:16,cat:'✖️ Perkalian'},
+  {q:'3 × 5 = ?',a:15,cat:'✖️ Perkalian'},{q:'2 × 6 = ?',a:12,cat:'✖️ Perkalian'},
+  {q:'6 × 3 = ?',a:18,cat:'✖️ Perkalian'},{q:'7 × 4 = ?',a:28,cat:'✖️ Perkalian'},
+  {q:'8 × 3 = ?',a:24,cat:'✖️ Perkalian'},{q:'9 × 2 = ?',a:18,cat:'✖️ Perkalian'},
+  {q:'6 × 5 = ?',a:30,cat:'✖️ Perkalian'},
+  {q:'10 ÷ 2 = ?',a:5,cat:'➗ Pembagian'},{q:'12 ÷ 3 = ?',a:4,cat:'➗ Pembagian'},
+  {q:'15 ÷ 5 = ?',a:3,cat:'➗ Pembagian'},{q:'8 ÷ 2 = ?',a:4,cat:'➗ Pembagian'},
+  {q:'20 ÷ 4 = ?',a:5,cat:'➗ Pembagian'},{q:'18 ÷ 3 = ?',a:6,cat:'➗ Pembagian'},
+  {q:'24 ÷ 4 = ?',a:6,cat:'➗ Pembagian'},{q:'30 ÷ 5 = ?',a:6,cat:'➗ Pembagian'},
+  {q:'28 ÷ 7 = ?',a:4,cat:'➗ Pembagian'},{q:'36 ÷ 6 = ?',a:6,cat:'➗ Pembagian'},
+  {q:'Puluhan dari 47 = ?',a:4,cat:'🔢 Nilai Tempat'},
+  {q:'Satuan dari 85 = ?',a:5,cat:'🔢 Nilai Tempat'},
+  {q:'30 + 6 = ?',a:36,cat:'🔢 Nilai Tempat'},
+  {q:'Puluhan dari 73 = ?',a:7,cat:'🔢 Nilai Tempat'},
+  {q:'Ratusan dari 352 = ?',a:3,cat:'🔢 Nilai Tempat'},
+  {q:'100 + 20 + 5 = ?',a:125,cat:'🔢 Nilai Tempat'},
+  {q:'200 + 30 + 4 = ?',a:234,cat:'🔢 Nilai Tempat'},
+  {q:'Ratusan dari 461 = ?',a:4,cat:'🔢 Nilai Tempat'},
+  {q:'Ada 5 apel, Budi beli 4 lagi. Jumlah = ?',a:9,cat:'📖 Soal Cerita'},
+  {q:'Ibu punya 20 kue, dibagi 5 anak. Tiap anak = ?',a:4,cat:'📖 Soal Cerita'},
+  {q:'Ada 18 burung, terbang 6. Sisa = ?',a:12,cat:'📖 Soal Cerita'},
+  {q:'3 keranjang × 4 jeruk. Total jeruk = ?',a:12,cat:'📖 Soal Cerita'},
+  {q:'Ani punya 50 stiker, beri 15. Sisa = ?',a:35,cat:'📖 Soal Cerita'},
+  {q:'4 baris × 6 kursi. Jumlah kursi = ?',a:24,cat:'📖 Soal Cerita'},
+  {q:'Pensil Rp50, beli 3. Total = ?',a:150,cat:'📖 Soal Cerita'},
+  {q:'Ada 100 buku, dipinjam 35. Sisa = ?',a:65,cat:'📖 Soal Cerita'},
+];
+
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
+let groups,currentGroup,pendingLand,usedQIdx,currentQuestion;
+let answeringGroup;
+let isRebutan = false;
+let skippedQuestion = null;
+let skippedByGroup = -1;
+let alreadyTriedGroups = [];
+let lastDiceVal = 0;
+let timerInterval = null;
+let groupConfirmed = false; // apakah guru sudah memilih kelompok di rebutan
+const TIMER_SECONDS = 30;
+const diceIcons=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const ladderMap={};LADDERS.forEach(l=>ladderMap[l.from]=l.to);
+const snakeMap={};SNAKES.forEach(s=>snakeMap[s.from]=s.to);
+
+function initState(){
+  groups=GROUP_DATA.map(g=>({...g,pos:0,correct:0,wrong:0}));
+  currentGroup=0;pendingLand=null;usedQIdx=new Set();currentQuestion=null;
+  answeringGroup=0;isRebutan=false;skippedQuestion=null;
+  skippedByGroup=-1;alreadyTriedGroups=[];lastDiceVal=0;
+}
+
+// ═══════════════════════════════
+//  BOARD HELPERS
+// ═══════════════════════════════
+const PAD=4,GAP=2,CELLS=10;
+const CELL_SIZE=(572-PAD*2-GAP*(CELLS-1))/CELLS;
+
+function cellCoords(n){
+  const rowNum=Math.floor((n-1)/10);
+  const row0=9-rowNum;
+  const col=rowNum%2===0?(n-1)%10:9-((n-1)%10);
+  return{col,row:row0};
+}
+function cellCenter(n){
+  const{col,row}=cellCoords(n);
+  return{
+    x:PAD+col*(CELL_SIZE+GAP)+CELL_SIZE/2,
+    y:PAD+row*(CELL_SIZE+GAP)+CELL_SIZE/2
+  };
+}
+
+// ═══════════════════════════════
+//  BUILD BOARD
+// ═══════════════════════════════
+function buildBoard(){
+  const board=document.getElementById('board');board.innerHTML='';
+  for(let row=9;row>=0;row--){
+    for(let col=0;col<10;col++){
+      const rowNum=row;
+      const n=rowNum%2===0?rowNum*10+col+1:rowNum*10+(10-col);
+      const colorIdx=row%10;
+      const div=document.createElement('div');
+      div.className=`cell c${colorIdx}`;
+      if(n===100)div.style.background='linear-gradient(135deg,#FFD600,#FF6F00)';
+      div.id=`cell-${n}`;
+      div.innerHTML=n===100?`<span class="num">🏆</span>`:`<span class="num">${n}</span>`;
+      board.appendChild(div);
+    }
+  }
+}
+
+// ═══════════════════════════════
+//  SVG SNAKES & LADDERS
+// ═══════════════════════════════
+function drawSVG(){
+  const svg=document.getElementById('svg-overlay');svg.innerHTML='';
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+
+  const ladderColors=['#FFD600','#FF9800','#4CAF50','#2196F3','#E91E63','#9C27B0','#00BCD4','#FF5722'];
+  const snakePalettes=[
+    ['#e07070','#f5b8b8'],['#9b7fe8','#cdbef5'],['#5b8dee','#a8c4f8'],
+    ['#52b788','#a8d8be'],['#f4956a','#f8c4a8'],['#e887b0','#f5bcd8'],
+    ['#5bbfbf','#a8e0e0'],['#b09888','#d8c4b8'],
+  ];
+
+  // LADDERS
+  LADDERS.forEach((l,i)=>{
+    const B=cellCenter(l.from),T=cellCenter(l.to);
+    const color=ladderColors[i%ladderColors.length];
+    const dx=T.x-B.x,dy=T.y-B.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const nx=-dy/len*9,ny=dx/len*9;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Shadow
+    const sg=document.createElementNS('http://www.w3.org/2000/svg','g');
+    sg.setAttribute('opacity','0.2');
+    [[B.x-nx,B.y-ny,T.x-nx,T.y-ny],[B.x+nx,B.y+ny,T.x+nx,T.y+ny]].forEach(([x1,y1,x2,y2])=>{
+      const l2=document.createElementNS('http://www.w3.org/2000/svg','line');
+      [['x1',x1+3],['y1',y1+3],['x2',x2+3],['y2',y2+3],['stroke','#000'],['stroke-width','9'],['stroke-linecap','round']].forEach(([k,v])=>l2.setAttribute(k,v));
+      sg.appendChild(l2);
+    });
+    svg.appendChild(sg);
+
+    // Rails
+    [[B.x-nx,B.y-ny,T.x-nx,T.y-ny],[B.x+nx,B.y+ny,T.x+nx,T.y+ny]].forEach(([x1,y1,x2,y2])=>{
+      const rail=document.createElementNS('http://www.w3.org/2000/svg','line');
+      [['x1',x1],['y1',y1],['x2',x2],['y2',y2],['stroke',color],['stroke-width','8'],['stroke-linecap','round']].forEach(([k,v])=>rail.setAttribute(k,v));
+      g.appendChild(rail);
+    });
+
+    // Rungs
+    const nr=Math.max(3,Math.floor(len/26));
+    for(let r=1;r<=nr;r++){
+      const t=r/(nr+1);
+      const rx=B.x+t*dx,ry=B.y+t*dy;
+      const rung=document.createElementNS('http://www.w3.org/2000/svg','line');
+      [['x1',rx-nx],['y1',ry-ny],['x2',rx+nx],['y2',ry+ny],['stroke',color],['stroke-width','5.5'],['stroke-linecap','round']].forEach(([k,v])=>rung.setAttribute(k,v));
+      g.appendChild(rung);
+    }
+
+    // End caps
+    [B,T].forEach(pt=>{
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      [['cx',pt.x],['cy',pt.y],['r','10'],['fill',color],['stroke','#fff'],['stroke-width','2.5']].forEach(([k,v])=>c.setAttribute(k,v));
+      g.appendChild(c);
+    });
+    svg.appendChild(g);
+  });
+
+  // SNAKES
+  SNAKES.forEach((s,i)=>{
+    const H=cellCenter(s.from),T=cellCenter(s.to);
+    const[bodyColor,lightColor]=snakePalettes[i%snakePalettes.length];
+    const dx=T.x-H.x,dy=T.y-H.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const midX=(H.x+T.x)/2,midY=(H.y+T.y)/2;
+    const p1x=midX+dy*0.38,p1y=midY-dx*0.38;
+    const p2x=midX-dy*0.38,p2y=midY+dx*0.38;
+    const gradId=`sg${i}`;
+
+    const grad=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+    grad.setAttribute('id',gradId);grad.setAttribute('gradientUnits','userSpaceOnUse');
+    grad.setAttribute('x1',H.x);grad.setAttribute('y1',H.y);
+    grad.setAttribute('x2',T.x);grad.setAttribute('y2',T.y);
+    [[0,bodyColor],[50,lightColor],[100,bodyColor]].forEach(([off,col])=>{
+      const stop=document.createElementNS('http://www.w3.org/2000/svg','stop');
+      stop.setAttribute('offset',off+'%');stop.setAttribute('stop-color',col);grad.appendChild(stop);
+    });
+    defs.appendChild(grad);
+
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    const d=`M${H.x} ${H.y} Q${p1x} ${p1y} ${midX} ${midY} Q${p2x} ${p2y} ${T.x} ${T.y}`;
+
+    // Shadow
+    const sp=document.createElementNS('http://www.w3.org/2000/svg','path');
+    sp.setAttribute('d',`M${H.x+3} ${H.y+3} Q${p1x+3} ${p1y+3} ${midX+3} ${midY+3} Q${p2x+3} ${p2y+3} ${T.x+3} ${T.y+3}`);
+    [['stroke','#0004'],['stroke-width','24'],['fill','none'],['stroke-linecap','round']].forEach(([k,v])=>sp.setAttribute(k,v));
+    g.appendChild(sp);
+
+    // Body
+    const bp=document.createElementNS('http://www.w3.org/2000/svg','path');
+    bp.setAttribute('d',d);
+    [['stroke',`url(#${gradId})`],['stroke-width','20'],['fill','none'],['stroke-linecap','round']].forEach(([k,v])=>bp.setAttribute(k,v));
+    g.appendChild(bp);
+
+    // Scale dots
+    const ns=Math.max(4,Math.floor(len/38));
+    for(let k=1;k<ns;k++){
+      const t=k/ns;
+      const bx=bez(H.x,p1x,p2x,T.x,t),by=bez(H.y,p1y,p2y,T.y,t);
+      const sc=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      [['cx',bx],['cy',by],['rx','6'],['ry','4'],['fill',lightColor],['opacity','0.55']].forEach(([k2,v])=>sc.setAttribute(k2,v));
+      g.appendChild(sc);
+    }
+
+    // Head
+    const hc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    [['cx',H.x],['cy',H.y],['r','16'],['fill',bodyColor],['stroke','#fff'],['stroke-width','3']].forEach(([k,v])=>hc.setAttribute(k,v));
+    g.appendChild(hc);
+
+    // Eyes
+    const ea=Math.atan2(dy,dx)+Math.PI;
+    [{off:.5},{off:-.5}].forEach(({off})=>{
+      const ex=H.x+Math.cos(ea+off)*8,ey=H.y+Math.sin(ea+off)*8;
+      const ew=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      [['cx',ex],['cy',ey],['r','4.5'],['fill','#fff']].forEach(([k,v])=>ew.setAttribute(k,v));
+      const ep=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      [['cx',ex],['cy',ey],['r','2.5'],['fill','#000']].forEach(([k,v])=>ep.setAttribute(k,v));
+      g.appendChild(ew);g.appendChild(ep);
+    });
+
+    // Tongue
+    const tb={x:H.x+Math.cos(ea)*16,y:H.y+Math.sin(ea)*16};
+    [.35,-.35].forEach(off=>{
+      const tl=document.createElementNS('http://www.w3.org/2000/svg','line');
+      [['x1',tb.x],['y1',tb.y],['x2',tb.x+Math.cos(ea+off)*11],['y2',tb.y+Math.sin(ea+off)*11],['stroke','#ff1744'],['stroke-width','3'],['stroke-linecap','round']].forEach(([k,v])=>tl.setAttribute(k,v));
+      g.appendChild(tl);
+    });
+
+    // Tail
+    const tc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    [['cx',T.x],['cy',T.y],['r','6'],['fill',lightColor]].forEach(([k,v])=>tc.setAttribute(k,v));
+    g.appendChild(tc);
+    svg.appendChild(g);
+  });
+
+  svg.insertBefore(defs,svg.firstChild);
+}
+
+function bez(p0,p1,p2,p3,t){
+  return (1-t)**3*p0+3*(1-t)**2*t*p1+3*(1-t)*t**2*p2+t**3*p3;
+}
+
+// ═══════════════════════════════
+//  PIECES
+// ═══════════════════════════════
+function getCellCenterPx(n){
+  const cell=document.getElementById(`cell-${n}`);
+  const layer=document.getElementById('pieces-layer');
+  if(!cell||!layer)return{x:0,y:0};
+  const cr=cell.getBoundingClientRect(),lr=layer.getBoundingClientRect();
+  return{x:cr.left-lr.left+cr.width/2,y:cr.top-lr.top+cr.height/2};
+}
+function highlightCurrentCell(){
+  // Remove previous highlight
+  document.querySelectorAll('.cell.current-turn').forEach(el=>el.classList.remove('current-turn'));
+  const g=groups[currentGroup];
+  if(g.pos>0){
+    const cell=document.getElementById('cell-'+g.pos);
+    if(cell) cell.classList.add('current-turn');
+  }
+}
+
+function renderPieces(){
+  const layer=document.getElementById('pieces-layer');layer.innerHTML='';
+  // Group pieces by position
+  const byPos={};
+  groups.forEach((g,i)=>{ if(g.pos===0)return; if(!byPos[g.pos])byPos[g.pos]=[]; byPos[g.pos].push(i); });
+  Object.keys(byPos).forEach(pos=>{
+    const idxs=byPos[pos];
+    const n=idxs.length;
+    const{x,y}=getCellCenterPx(Number(pos));
+    idxs.forEach((gi,k)=>{
+      const angle=(2*Math.PI*k/n)-Math.PI/2;
+      const r=n>1?10:0;
+      const div=document.createElement('div');
+      div.className='piece';div.id=`piece-${gi}`;
+      div.style.background=groups[gi].color;
+      div.style.left=(x-12+Math.cos(angle)*r)+'px';
+      div.style.top=(y-12+Math.sin(angle)*r)+'px';
+      div.textContent=groups[gi].emoji;
+      layer.appendChild(div);
+    });
+  });
+}
+
+// ═══════════════════════════════
+//  UI RENDER
+// ═══════════════════════════════
+function renderGroups(){
+  const c=document.getElementById('groups-grid');c.innerHTML='';
+  groups.forEach((g,i)=>{
+    const div=document.createElement('div');
+    div.className='group-item'+(i===currentGroup?' active-turn':'');
+    div.style.background=g.color;
+    div.innerHTML=`<span class="avatar">${g.emoji}</span><div class="info"><div class="gname">${g.name}</div><div class="gpos">Kotak ${g.pos}</div></div>`;
+    c.appendChild(div);
+  });
+}
+function renderScore(){
+  const tb=document.getElementById('score-body');tb.innerHTML='';
+  const maxPos=Math.max(...groups.map(g=>g.pos));
+  groups.forEach(g=>{
+    const tr=document.createElement('tr');
+    const isLeading = g.pos===maxPos && g.pos>0;
+    if(isLeading) tr.style.background='linear-gradient(135deg,#fffde7,#fff9c4)';
+    tr.innerHTML=`<td>${isLeading?'👑 ':''}${g.emoji} ${g.name}</td><td><b>${g.pos}</b></td><td style="color:#2e7d32;font-weight:900">${g.correct}</td><td style="color:#b71c1c;font-weight:900">${g.wrong}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderAll(){
+  renderGroups();renderScore();renderPieces();highlightCurrentCell();
+  const g=groups[currentGroup];
+  const tl = document.getElementById('turn-label');
+  tl.innerHTML = `Giliran <span style="color:${g.color};font-weight:900">${g.emoji} ${g.name}</span>`;
+}
+
+// ═══════════════════════════════
+//  GAME LOGIC
+// ═══════════════════════════════
+function rollDice(){
+  document.getElementById('roll-btn').disabled=true;
+  const dice=document.getElementById('dice');
+  dice.classList.add('rolling');
+  playSound('dice');
+  let cnt=0;
+  const spin=setInterval(()=>{
+    dice.textContent=diceIcons[Math.floor(Math.random()*6)];
+    if(++cnt>=8){ // dikurangi dari 12 → 8 putaran
+      clearInterval(spin);dice.classList.remove('rolling');
+      const val=Math.floor(Math.random()*6)+1;
+      lastDiceVal = val;
+      dice.textContent=diceIcons[val-1];
+      movePiece(val);
+    }
+  },45); // dikurangi dari 55ms → 45ms
+}
+
+function movePiece(steps){
+  const g=groups[currentGroup];
+  let np=g.pos+steps;
+  const bounced=np>100;
+  if(bounced)np=100-(np-100);
+  pendingLand=np;
+  if(bounced) setTimeout(()=>showFloat('🔙 Memantul ke kotak '+np+'!','#9b7fe8'),100);
+  // Semua kasus termasuk kotak 100 — harus jawab soal dulu
+  showQuestion(np);
+}
+
+function animateMove(from,to,cb,groupIdx){
+  const idx = (groupIdx !== undefined) ? groupIdx : currentGroup;
+  const g=groups[idx];
+  let pos=from;const step=from<to?1:-1;
+  function tick(){
+    pos+=step;g.pos=pos;renderPieces();
+    pos!==to?setTimeout(tick,60):cb();
+  }
+  tick();
+}
+
+function animateMoveGroup(groupIdx, from, to, cb){
+  const g = groups[groupIdx];
+  let pos = from;
+  const step = from < to ? 1 : -1;
+  function tick(){
+    pos += step; g.pos = pos; renderPieces();
+    pos !== to ? setTimeout(tick, 60) : cb();
+  }
+  tick();
+}
+
+function getRandomQuestion(){
+  const avail=QUESTION_BANK.map((_,i)=>i).filter(i=>!usedQIdx.has(i));
+  if(!avail.length)usedQIdx.clear();
+  const idx=avail.length?avail[Math.floor(Math.random()*avail.length)]:Math.floor(Math.random()*QUESTION_BANK.length);
+  usedQIdx.add(idx);
+  return{...QUESTION_BANK[idx],idx};
+}
+
+function startTimer(){
+  stopTimer();
+  let sisa = TIMER_SECONDS;
+  const bar   = document.getElementById('timer-bar');
+  const count = document.getElementById('timer-count');
+  const label = document.getElementById('timer-label');
+  const wrap  = document.getElementById('timer-bar-wrap');
+  label.style.display = 'block';
+  wrap.style.display  = 'block';
+  count.textContent   = sisa;
+  bar.style.width     = '100%';
+  bar.style.background= 'linear-gradient(90deg,#43a047,#FFD600)';
+
+  // Mulai countdown setelah 100ms agar transisi CSS terlihat
+  setTimeout(()=>{
+    bar.style.width = '0%';
+    bar.style.background = 'linear-gradient(90deg,#43a047,#FFD600,#ef5350)';
+  }, 100);
+
+  timerInterval = setInterval(()=>{
+    sisa--;
+    count.textContent = sisa;
+    if(sisa <= 10) bar.style.background = '#ef5350';
+    if(sisa <= 0){
+      stopTimer();
+      const fb = document.getElementById('feedback');
+      const inputVal = document.getElementById('answer-input').value.trim();
+      const sudahIsi = groupConfirmed && inputVal !== '';
+      const jawabanBenar = sudahIsi && parseInt(inputVal,10) === currentQuestion.a;
+
+      document.getElementById('submit-btn').disabled = true;
+      document.getElementById('skip-btn').disabled   = true;
+
+      if(jawabanBenar){
+        // Jawaban sudah diisi dan benar — tetap dihitung benar!
+        playSound('correct'); fb.textContent = `⏰ Waktu habis, tapi jawaban benar! 🎉`;
+        fb.className='correct'; fb.style.display='block';
+        groups[answeringGroup].correct++;
+
+        if(isRebutan){
+          setTimeout(()=>{
+            document.getElementById('modal-bg').classList.remove('show');
+            const winner = groups[answeringGroup];
+            let to = winner.pos + lastDiceVal;
+            if(to > 100) to = 100 - (to - 100);
+            to = applyLS(to, true);
+            playSound('ladder'); showFloat(`🎉 ${winner.emoji} ${winner.name} maju ke kotak ${to}!`, winner.color);
+            animateMoveGroup(answeringGroup, winner.pos, to, ()=>{
+              winner.pos = to;
+              renderAll();
+              if(to === 100){ showWinner(answeringGroup); return; }
+              nextTurn();
+            });
+          },1400);
+        } else {
+          setTimeout(()=>closeModal(applyLS(pendingLand,true)),1300);
+        }
+        return;
+      }
+
+      // Jawaban salah atau belum diisi
+      if(sudahIsi && !jawabanBenar){
+        // Sudah isi tapi salah → catat salah
+        fb.textContent = `⏰ Waktu habis! Jawaban: ${currentQuestion.a}`;
+        groups[answeringGroup].wrong++;
+        alreadyTriedGroups.push(answeringGroup);
+      } else {
+        // Belum isi → tidak catat salah
+        fb.textContent = `⏰ Waktu habis! Pilih kelompok berikutnya...`;
+      }
+      fb.className='wrong'; fb.style.display='block';
+      groupConfirmed = false;
+
+      if(isRebutan){
+        // Cek apakah kelompok sudah sempat mengisi jawaban
+        const inputVal = document.getElementById('answer-input').value.trim();
+        const sudahIsi = groupConfirmed && inputVal !== '';
+
+        if(sudahIsi){
+          // Sudah isi jawaban tapi waktu habis → catat salah
+          groups[answeringGroup].wrong++;
+          alreadyTriedGroups.push(answeringGroup);
+        }
+        // Jika belum isi → tidak catat salah, kelompok ini masih bisa ikut rebutan
+        groupConfirmed = false;
+
+        const canTry = groups.filter((_,i)=> i!==skippedByGroup && !alreadyTriedGroups.includes(i));
+        if(canTry.length > 0){
+          setTimeout(()=>{
+            renderAnswererBtns(true);
+            const next = groups.findIndex((_,i)=> i!==skippedByGroup && !alreadyTriedGroups.includes(i));
+            if(next>=0){
+              answeringGroup=next;
+              document.getElementById('q-pill').style.background=groups[next].color;
+              document.getElementById('q-group-badge').textContent=groups[next].emoji+' ';
+              document.getElementById('q-group-name').textContent=groups[next].name;
+              const inp=document.getElementById('answer-input');
+              inp.value='';setInputOverlay(false);
+              fb.style.display='none';
+              document.getElementById('submit-btn').disabled=false;
+              inp.focus();
+              startTimer();
+            }
+          },1200);
+        } else {
+          fb.textContent = `⏭ Semua sudah mencoba. Soal dilewati!`;
+          fb.className='wrong'; fb.style.display='block';
+          setTimeout(()=>{ document.getElementById('modal-bg').classList.remove('show'); nextTurn(); },1500);
+        }
+      } else {
+        setTimeout(()=>{ document.getElementById('modal-bg').classList.remove('show'); nextTurn(); },1500);
+      }
+    }
+  },1000);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  document.getElementById('timer-label').style.display='none';
+  document.getElementById('timer-bar-wrap').style.display='none';
+}
+
+// Tampilkan modal soal — normal atau rebutan
+function showQuestion(pos, rebutan=false, soal=null){
+  isRebutan = rebutan;
+  currentQuestion = soal || getRandomQuestion();
+
+  // Tentukan kelompok yang menjawab:
+  // - Mode normal: kelompok giliran (currentGroup)
+  // - Mode rebutan: kelompok pertama yang bisa rebutan (bukan yang melewati)
+  if(rebutan){
+    answeringGroup = -1; // belum ada yang dipilih
+    groupConfirmed = false;
+  } else {
+    answeringGroup = currentGroup;
+    groupConfirmed = true;
+  }
+
+  // Pill header
+  if(rebutan){
+    // Tampilkan netral — belum ada kelompok dipilih
+    const pill = document.getElementById('q-pill');
+    pill.style.background = '#9e9e9e';
+    document.getElementById('q-group-badge').textContent = '❓ ';
+    document.getElementById('q-group-name').textContent  = 'Pilih kelompok';
+  } else {
+    const g = groups[answeringGroup];
+    const pill = document.getElementById('q-pill');
+    pill.style.background = g.color;
+    document.getElementById('q-group-badge').textContent = g.emoji+' ';
+    document.getElementById('q-group-name').textContent  = g.name;
+  }
+  document.getElementById('q-category').textContent = currentQuestion.cat;
+  document.getElementById('q-text').textContent     = currentQuestion.q;
+
+  // Tampilkan info dadu
+  const diceInfo = document.getElementById('q-dice-info');
+  document.getElementById('q-dice-val').textContent = lastDiceVal;
+  diceInfo.style.display = lastDiceVal > 0 ? 'inline-block' : 'none';
+  document.getElementById('answer-input').value   = '';
+  setInputOverlay(rebutan);
+  const fb = document.getElementById('feedback');
+  fb.className='';fb.textContent='';fb.style.display='none';
+  document.getElementById('submit-btn').disabled = true;
+  // Tombol Lewati: tampil di mode normal, sembunyi di rebutan
+  document.getElementById('skip-btn').style.display   = rebutan ? 'none' : 'block';
+  document.getElementById('skip-btn').disabled         = rebutan;
+  // Tombol Lewati Rebutan: tampil hanya di rebutan
+  document.getElementById('skip-rebutan-row').style.display = rebutan ? 'block' : 'none';
+
+  // Render tombol pilih kelompok yang menjawab
+  renderAnswererBtns(rebutan);
+
+  // Mode normal: langsung enable input & submit
+  if(!rebutan){
+    setInputOverlay(false);
+    document.getElementById('submit-btn').disabled   = false;
+    document.getElementById('skip-rebutan-row').style.display = 'none';
+    document.getElementById('skip-btn').style.display = 'block';
+  } else {
+    document.getElementById('skip-rebutan-row').style.display = 'block';
+    document.getElementById('skip-btn').style.display = 'none';
+  }
+
+  document.getElementById('modal-bg').classList.add('show');
+  setTimeout(()=>{
+    if(!rebutan) document.getElementById('answer-input').focus();
+    startTimer();
+  },200);
+}
+
+function renderAnswererBtns(rebutan){
+  const row   = document.getElementById('answerer-row');
+  const label = document.getElementById('answerer-label');
+  const btns  = document.getElementById('answerer-btns');
+  btns.innerHTML = '';
+
+  if(!rebutan){
+    // Mode normal: hanya tampilkan kelompok giliran, tidak ada pilihan
+    row.style.display = 'none';
+    return;
+  }
+
+  // Mode rebutan: tampilkan semua kelompok kecuali yang melewati
+  row.style.display = 'block';
+  label.innerHTML = `🔥 <b>REBUTAN!</b> Jawab benar = maju <b style="color:#e53935;font-size:1.2rem">${lastDiceVal}</b> langkah dari posisimu!`;
+
+  groups.forEach((g,i)=>{
+    if(i === skippedByGroup) return;
+    const btn = document.createElement('button');
+    const isUsed     = alreadyTriedGroups.includes(i);
+    const isSelected = (i === answeringGroup && groupConfirmed);
+    btn.className = 'answerer-btn' + (isUsed?' used':'') + (isSelected?' selected':'');
+    btn.style.background = g.color;
+    btn.textContent = g.emoji+' '+g.name;
+    btn.disabled = isUsed;
+    btn.onclick = ()=>{
+      if(alreadyTriedGroups.includes(i)) return;
+      answeringGroup = i;
+      groupConfirmed = true;
+      // Update pill
+      document.getElementById('q-pill').style.background = g.color;
+      document.getElementById('q-group-badge').textContent = g.emoji+' ';
+      document.getElementById('q-group-name').textContent  = g.name;
+      // Enable input & submit setelah pilih kelompok
+      const inp = document.getElementById('answer-input');
+      inp.value = '';
+      setInputOverlay(false);
+      const fb2 = document.getElementById('feedback');
+      fb2.className=''; fb2.textContent=''; fb2.style.display='none';
+      document.getElementById('submit-btn').disabled = false;
+      document.getElementById('skip-btn').disabled   = true;
+      // Update selected
+      btns.querySelectorAll('.answerer-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      inp.focus();
+    };
+    btns.appendChild(btn);
+  });
+}
+
+function submitAnswer(){
+  const val = parseInt(document.getElementById('answer-input').value,10);
+  if(isNaN(val)){document.getElementById('answer-input').focus();return;}
+
+  // Validasi: rebutan harus pilih kelompok dulu
+  if(isRebutan && !groupConfirmed){
+    showWarning('⚠️ Pilih kelompok yang menjawab dulu!');
+    return;
+  }
+
+  const correct = val === currentQuestion.a;
+  const fb = document.getElementById('feedback');
+  document.getElementById('submit-btn').disabled = true;
+
+  if(correct){
+    stopTimer(); playSound('correct');
+    fb.textContent = `🎉 Benar! Jawaban: ${currentQuestion.a}`;
+    fb.className='correct';fb.style.display='block';
+    groups[answeringGroup].correct++;
+
+    if(isRebutan){
+      // Pemenang rebutan maju dari posisi mereka sendiri + nilai dadu
+      setTimeout(()=>{
+        document.getElementById('modal-bg').classList.remove('show');
+        const winner = groups[answeringGroup];
+        let to = winner.pos + lastDiceVal;
+        if(to > 100) to = 100 - (to - 100);
+        to = applyLS(to, true);
+        showFloat(`🎉 ${winner.emoji} ${winner.name} maju ke kotak ${to}!`, winner.color);
+        animateMoveGroup(answeringGroup, winner.pos, to, ()=>{
+          winner.pos = to;
+          renderAll();
+          if(to === 100){ showWinner(answeringGroup); return; }
+          nextTurn();
+        });
+      },1400);
+    } else {
+      setTimeout(()=>closeModal(applyLS(pendingLand,true)),1300);
+    }
+  } else {
+    stopTimer(); playSound('wrong');
+    fb.textContent = `😅 Salah!`;
+    fb.className='wrong';fb.style.display='block';
+    groups[answeringGroup].wrong++;
+    alreadyTriedGroups.push(answeringGroup);
+
+    const canTry = groups.filter((_,i)=> i!==skippedByGroup && !alreadyTriedGroups.includes(i));
+
+    if(isRebutan && canTry.length > 0){
+      renderAnswererBtns(true);
+      const next = groups.findIndex((_,i)=> i!==skippedByGroup && !alreadyTriedGroups.includes(i));
+      if(next>=0){
+        answeringGroup = next;
+        document.getElementById('q-pill').style.background = groups[next].color;
+        document.getElementById('q-group-badge').textContent = groups[next].emoji+' ';
+        document.getElementById('q-group-name').textContent  = groups[next].name;
+        const inp = document.getElementById('answer-input');
+        inp.value=''; setInputOverlay(false);
+        document.getElementById('feedback').className='';
+        document.getElementById('feedback').style.display='none';
+        document.getElementById('submit-btn').disabled = false;
+        groupConfirmed = false; // reset — guru harus pilih lagi
+        inp.focus();
+        startTimer();
+      }
+    } else if(isRebutan && canTry.length === 0){
+      fb.textContent = `⏭ Tidak ada yang menjawab. Soal dilewati!`;
+      fb.className='wrong';fb.style.display='block';
+      document.getElementById('submit-btn').disabled = true;
+      document.getElementById('skip-btn').disabled   = true;
+      setTimeout(()=>{
+        document.getElementById('modal-bg').classList.remove('show');
+        nextTurn();
+      },1600);
+    } else {
+      stopTimer(); playSound('wrong');
+      fb.textContent = `😅 Salah! Jawaban: ${currentQuestion.a}`;
+      fb.className='wrong'; fb.style.display='block';
+      document.getElementById('skip-btn').disabled = true;
+      setTimeout(()=>{
+        document.getElementById('modal-bg').classList.remove('show');
+        nextTurn();
+      },1800);
+    }
+  }
+}
+
+function applyLS(pos,correct){
+  if(correct && ladderMap[pos]) return ladderMap[pos];
+  if(!correct && snakeMap[pos]) return snakeMap[pos];
+  return pos;
+}
+
+function skipRebutan(){
+  // Tidak ada kelompok yang dapat nilai merah
+  // Tutup modal dan lanjut ke giliran berikutnya
+  stopTimer();
+  document.getElementById('modal-bg').classList.remove('show');
+  showFloat('⏭ Soal dilewati, tidak ada nilai merah', '#9b7fe8');
+  setTimeout(()=> nextTurn(), 600);
+}
+
+function skipQuestion(){
+  stopTimer();
+  skippedQuestion    = {...currentQuestion};
+  skippedByGroup     = currentGroup;
+  alreadyTriedGroups = [currentGroup];
+  // Tidak ada nilai merah — kelompok hanya tidak bisa menjawab
+
+  document.getElementById('modal-bg').classList.remove('show');
+  renderAll();
+
+  const canTry = groups.filter((_,i) => i !== skippedByGroup);
+  if(canTry.length > 0){
+    const first = groups.findIndex((_,i) => i !== skippedByGroup);
+    answeringGroup = first;
+    playSound('rebutan'); showFloat(`🔥 Soal direbut kelompok lain!`, '#f4956a');
+    setTimeout(() => showQuestion(pendingLand, true, skippedQuestion), 800);
+  } else {
+    nextTurn();
+  }
+}
+
+function closeModal(finalPos){
+  document.getElementById('modal-bg').classList.remove('show');
+  const g=groups[currentGroup];
+  const from=g.pos;
+  // Gerakkan bidak dari posisi awal ke pendingLand dulu
+  const cgIdx = currentGroup;
+  animateMove(from, pendingLand, ()=>{
+    g.pos=pendingLand;
+    if(finalPos !== pendingLand){
+      const up = finalPos > pendingLand;
+      playSound(up?'ladder':'snake'); showFloat(up?'🪜 Naik Tangga! 🪜':'🐍 Turun Ular! 🐍', up?'#52b788':'#e07070');
+      animateMove(pendingLand, finalPos, ()=>{
+        g.pos=finalPos; renderAll();
+        if(finalPos===100){showWinner(cgIdx);return;}
+        nextTurn();
+      }, cgIdx);
+    } else {
+      g.pos=finalPos; renderAll();
+      if(finalPos===100){showWinner(cgIdx);return;}
+      nextTurn();
+    }
+  }, cgIdx);
+}
+
+function setInputOverlay(show){
+  const inp     = document.getElementById('answer-input');
+  const overlay = document.getElementById('input-overlay');
+  if(show){
+    overlay.style.display = 'block';
+    inp.style.background  = '#f4f6fc';
+    inp.style.borderColor = '#e2e8f8';
+    inp.style.color       = '#b0b8d0';
+    inp.style.cursor      = 'not-allowed';
+    inp.readOnly          = true;
+  } else {
+    overlay.style.display = 'none';
+    inp.style.background  = '';
+    inp.style.borderColor = '';
+    inp.style.color       = '';
+    inp.style.cursor      = '';
+    inp.readOnly          = false;
+  }
+}
+
+function showWarning(msg){
+  // Tampilkan peringatan di dalam modal (bukan float)
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className = 'warning';
+  fb.style.display = 'block';
+  // Highlight tombol kelompok agar guru tahu harus klik
+  document.getElementById('answerer-btns').style.animation = 'shakeRow .4s ease';
+  setTimeout(()=>{
+    document.getElementById('answerer-btns').style.animation = '';
+    if(fb.textContent === msg){ // hilangkan jika belum diganti
+      fb.style.display = 'none';
+    }
+  }, 2000);
+}
+
+function showFloat(msg,color){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:${color};color:#fff;padding:16px 32px;border-radius:18px;font-family:'Nunito',sans-serif;font-size:1.8rem;font-weight:800;z-index:300;pointer-events:none;animation:fadeUp 1.6s forwards;box-shadow:0 8px 32px #0005;border:4px solid #fff5;`;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1700);
+}
+
+function nextTurn(){
+  stopTimer();
+  isRebutan=false; skippedQuestion=null;
+  skippedByGroup=-1; alreadyTriedGroups=[];
+  groupConfirmed=false; answeringGroup=-1;
+  currentGroup=(currentGroup+1)%groups.length;
+  renderAll();
+  document.getElementById('roll-btn').disabled=false;
+}
+
+function showWinner(idx){ playSound('winner');
+  const g=groups[idx];
+  document.getElementById('winner-text').textContent=`🎉 ${g.name} Menang! ${g.emoji}`;
+  document.getElementById('winner-sub').textContent=`Jawaban Benar: ${g.correct}  ·  Salah: ${g.wrong}`;
+  document.getElementById('winner-banner').classList.add('show');
+  spawnConfetti();
+}
+
+function spawnConfetti(){
+  const cols=['#f6c74e','#e07070','#5b8dee','#52b788','#9b7fe8','#f4956a','#e887b0','#5bbfbf'];
+  for(let i=0;i<100;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const size=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;width:${size}px;height:${size*1.4}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*2.5}s;animation-duration:${2+Math.random()*2.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  }
+}
+
+function confirmReset(){
+  const m = document.getElementById('confirm-modal');
+  m.style.display = 'flex';
+}
+
+function restartGame(){
+  // Stop timer jika masih jalan
+  stopTimer();
+  // Tutup semua modal
+  document.getElementById('winner-banner').classList.remove('show');
+  document.getElementById('modal-bg').classList.remove('show');
+  // Reset semua state
+  initState();
+  // Reset dadu
+  document.getElementById('dice').textContent='⚀';
+  // Enable tombol dadu
+  document.getElementById('roll-btn').disabled=false;
+  // Reset feedback & input modal
+  document.getElementById('feedback').className='';
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('answer-input').value='';
+  setInputOverlay(false);
+  // Render ulang semua
+  renderAll();
+  // Gambar ulang SVG (ular & tangga)
+  setTimeout(drawSVG, 60);
+}
+
+
+// ═══ SOUND EFFECTS ═══
+let isMuted = false;
+function toggleMute(){
+  isMuted = !isMuted;
+  const btn = document.getElementById('mute-btn');
+  btn.textContent = isMuted ? '🔇 Mati' : '🔊 Nyala';
+  btn.style.background = isMuted ? '#fee2e2' : '#eef3ff';
+  btn.style.color = isMuted ? '#991b1b' : '';
+}
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playSound(type){
+  if(isMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+
+    if(type==='dice'){
+      o.type='square'; o.frequency.setValueAtTime(220,now);
+      o.frequency.exponentialRampToValueAtTime(440,now+0.1);
+      g.gain.setValueAtTime(0.15,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+      o.start(now); o.stop(now+0.15);
+    } else if(type==='correct'){
+      o.type='sine';
+      o.frequency.setValueAtTime(440,now);
+      o.frequency.setValueAtTime(554,now+0.1);
+      o.frequency.setValueAtTime(659,now+0.2);
+      g.gain.setValueAtTime(0.2,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.4);
+      o.start(now); o.stop(now+0.4);
+    } else if(type==='wrong'){
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(300,now);
+      o.frequency.exponentialRampToValueAtTime(150,now+0.3);
+      g.gain.setValueAtTime(0.15,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.3);
+      o.start(now); o.stop(now+0.3);
+    } else if(type==='ladder'){
+      o.type='sine';
+      [523,659,784,1047].forEach((f,i)=>{
+        const t=now+i*0.08;
+        o.frequency.setValueAtTime(f,t);
+      });
+      g.gain.setValueAtTime(0.2,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.5);
+      o.start(now); o.stop(now+0.5);
+    } else if(type==='snake'){
+      o.type='sine';
+      [523,440,349,261].forEach((f,i)=>{
+        const t=now+i*0.08;
+        o.frequency.setValueAtTime(f,t);
+      });
+      g.gain.setValueAtTime(0.2,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.5);
+      o.start(now); o.stop(now+0.5);
+    } else if(type==='winner'){
+      const notes=[523,659,784,659,784,1047];
+      notes.forEach((f,i)=>{
+        const oo=ctx.createOscillator();
+        const gg=ctx.createGain();
+        oo.connect(gg); gg.connect(ctx.destination);
+        oo.type='sine'; oo.frequency.value=f;
+        const t=now+i*0.15;
+        gg.gain.setValueAtTime(0,t);
+        gg.gain.linearRampToValueAtTime(0.25,t+0.05);
+        gg.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+        oo.start(t); oo.stop(t+0.25);
+      });
+    } else if(type==='rebutan'){
+      o.type='square';
+      o.frequency.setValueAtTime(880,now);
+      o.frequency.setValueAtTime(660,now+0.08);
+      o.frequency.setValueAtTime(880,now+0.16);
+      g.gain.setValueAtTime(0.12,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.25);
+      o.start(now); o.stop(now+0.25);
+    }
+  } catch(e){ /* audio not supported */ }
+}
+// ═══ INIT ═══
+initState();buildBoard();renderAll();
+setTimeout(drawSVG,60);
+window.addEventListener('resize',()=>setTimeout(()=>{drawSVG();renderPieces();},100));
+</script>
+</body>
+</html>
